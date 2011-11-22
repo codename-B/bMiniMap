@@ -6,7 +6,7 @@ public class MiniMap {
 
 	public static int width = 128;
 	public static int radius = width / 2;
-	public static double zoom = 0.5;
+	public static double zoom = 1;
 
 	private final MiniMapRender render;
 	private BufferedImage image;
