@@ -1,0 +1,7 @@
+name: bMiniMap
+version: 1.0
+description: MiniMap addon for Spoutcraft
+authors: [codename_B]
+website: http://www.bpermissions.com/
+main: com.bpermissions.minimap.MiniMapAddon
+mode: BOTH
