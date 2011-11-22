@@ -155,12 +155,10 @@ class MiniMapRender extends Thread {
 						image.setRGB(x, z, transparent.getRGB());
 					}
 				
-				// Let's rotate according to the player rotation
-				double yaw = player.getEyeLocation().getYaw();
-				System.out.println("yaw: "+yaw);
 				
-				double pitch = player.getEyeLocation().getPitch();
-				System.out.println("pitch: "+pitch);
+				// Let's rotate according to the player rotation
+				
+				// TODO figure out how to get player rotation in spout
 				
 				// Then finally send it to the buffer!
 				buffer = convertImageData(image);
