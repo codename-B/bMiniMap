@@ -4,7 +4,7 @@ import java.io.File;
 import org.spoutcraft.spoutcraftapi.addon.java.JavaAddon;
 
 public class MiniMapAddon extends JavaAddon {
-	
+
 	File texture = new File("addons/texture.png");
 	MiniMapWidget widget;
 	public boolean isEnabled = false;
@@ -20,17 +20,18 @@ public class MiniMapAddon extends JavaAddon {
 		TextureUtils.getInstance().initialUpload();
 		isEnabled = true;
 		System.out.println("MiniMap enabled!");
-		
+
 		try {
-			
-		widget = new MiniMapWidget(this);
-		this.getClient().getActivePlayer().getMainScreen().attachWidget(this, widget);
-		
+
+			widget = new MiniMapWidget(this);
+			this.getClient().getActivePlayer().getMainScreen()
+					.attachWidget(this, widget);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		}
-	
+	}
+
 	public MiniMapWidget getWidget() {
 		return widget;
 	}
