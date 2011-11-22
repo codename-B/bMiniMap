@@ -2,6 +2,8 @@ package com.bpermissions.minimap;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
@@ -11,7 +13,7 @@ public class TextureUtils {
 	private TextureUtils() {
 	}
 
-	private static TextureUtils instance = null;
+	private static Map<String, TextureUtils> instances = new HashMap<String, TextureUtils>();
 	private int textureID;
 
 	/**
@@ -22,11 +24,11 @@ public class TextureUtils {
 	 * 
 	 * @return the class
 	 */
-	public static TextureUtils getInstance() {
-		if (instance == null) {
-			instance = new TextureUtils();
+	public static TextureUtils getInstance(String key) {
+		if (instances.get(key) == null) {
+			instances.put(key, new TextureUtils());
 		}
-		return instance;
+		return instances.get(key);
 	}
 
 	/**

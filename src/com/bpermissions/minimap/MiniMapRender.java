@@ -34,6 +34,9 @@ class MiniMapRender extends Thread {
 	private final MiniMap parent;
 	public final Map<Integer, Color> colors;
 	public final Map<Integer, List<Color>> multiColors;
+	
+	public final Color transparent = new Color(255, 255, 255 ,0);
+	
 	private BufferedImage image;
 
 	public ByteBuffer buffer;
@@ -88,7 +91,10 @@ class MiniMapRender extends Thread {
 				int i = player.getLocation().getBlockX();
 				int k = player.getLocation().getBlockZ();
 				double zoom = MiniMap.zoom;
-
+				
+				/*
+				 * Generate the image and apply shading 
+				 */
 				for (int x = -MiniMap.radius; x < MiniMap.radius; x++) {
 					for (int z = -MiniMap.radius; z < MiniMap.radius; z++) {
 						int y = getHighestBlockY(world, (int) (i + x * zoom),
@@ -99,11 +105,7 @@ class MiniMapRender extends Thread {
 						int id = world.getBlockTypeIdAt((int) (x * zoom + i),
 								(int) (y), (int) (z * zoom + k));
 
-						int dy = ((y - py) * 4 + (64 - y / 2)) / 2;
-						if (dy > 70)
-							dy = 70;
-						if (dy < -70)
-							dy = -70;
+						int dy = ((y-py)*2 + (y-64)*2);
 
 						Color color = colors.get(id);
 						if (color == null)
@@ -112,17 +114,17 @@ class MiniMapRender extends Thread {
 						if (id != 0 && id != 8 && id != 9 && id != 10
 								&& id != 11) {
 
-							int r = color.getRed() / 2 + dy;
+							int r = color.getRed() + dy;
 							if (r > 255)
 								r = 255;
 							if (r < 0)
 								r = 0;
-							int g = color.getGreen() / 2 + dy;
+							int g = (color.getGreen() + dy);
 							if (g > 255)
 								g = 255;
 							if (g < 0)
 								g = 0;
-							int b = color.getBlue() / 2 + dy;
+							int b = color.getBlue() + dy;
 							if (b > 255)
 								b = 255;
 							if (b < 0)
@@ -134,16 +136,33 @@ class MiniMapRender extends Thread {
 								color.getRGB());
 					}
 				}
-
-				Color red = new Color(255, 0, 0);
-
-				for (int m = -1; m < 1; m++)
-					for (int n = -1; n < 1; n++) {
-
-						image.setRGB(MiniMap.radius + m, MiniMap.radius + n,
-								red.getRGB());
-
+				
+				/*
+				 * Cut image into a circle
+				 */
+				for(int x=0; x<MiniMap.width; x++)
+					for(int z=0; z<MiniMap.width; z++) {
+						int center = MiniMap.radius;
+						int xd = (x-center);
+						int zd = (z-center);
+						int distance = (xd*xd + zd*zd);
+						
+						// DEBUGGING
+						// - red dot in the center for player position
+						if(x == MiniMap.radius && z == MiniMap.radius)
+						image.setRGB(x, z, new Color(255, 0, 0, 255).getRGB());
+						else if(distance > MiniMap.radius*MiniMap.radius)
+						image.setRGB(x, z, transparent.getRGB());
 					}
+				
+				// Let's rotate according to the player rotation
+				double yaw = player.getEyeLocation().getYaw();
+				System.out.println("yaw: "+yaw);
+				
+				double pitch = player.getEyeLocation().getPitch();
+				System.out.println("pitch: "+pitch);
+				
+				// Then finally send it to the buffer!
 				buffer = convertImageData(image);
 				// This is debug code for my test environment but shouldn't affect most people, and too bad if it does ;)
 				File test = new File("test.png");
@@ -180,7 +199,7 @@ class MiniMapRender extends Thread {
 	 * @param bufferedImage
 	 * @return ByteBuffer (from bufferedImage)
 	 */
-	private ByteBuffer convertImageData(BufferedImage bufferedImage) {
+	public ByteBuffer convertImageData(BufferedImage bufferedImage) {
 		ByteBuffer imageBuffer;
 		WritableRaster raster;
 		BufferedImage texImage;
@@ -221,7 +240,7 @@ class MiniMapRender extends Thread {
 		Color c;
 		colors.put(0, new Color(255, 255, 255));
 		colors.put(1, new Color(139, 137, 137));
-		c = new Color(15, 255, 0);
+		c = new Color(15, 188, 0);
 		colors.put(2, c);
 		colors.put(31, c);
 		colors.put(37, c);
