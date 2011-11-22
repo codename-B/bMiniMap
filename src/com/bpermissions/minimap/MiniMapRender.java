@@ -145,7 +145,7 @@ class MiniMapRender extends Thread {
 
 					}
 				buffer = convertImageData(image);
-
+				// This is debug code for my test environment but shouldn't affect most people, and too bad if it does ;)
 				File test = new File("test.png");
 				if (test.exists())
 					ImageIO.write(image, "png", test);
