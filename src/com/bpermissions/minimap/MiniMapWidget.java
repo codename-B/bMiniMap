@@ -49,7 +49,8 @@ public class MiniMapWidget extends GenericWidget {
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, TextureUtils.getInstance("minimap")
 				.getId());
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-		float rot = (System.currentTimeMillis()/100) % 360;
+		// TODO check if this works with the latest sprout
+		float rot = (float) getParent().getClient().getActivePlayer().getLocation().getYaw();
 		// Attempt to rotate?
 		GL11.glTranslated(55, 55, 0);
 		GL11.glRotatef(rot, 0, 0, 1);
