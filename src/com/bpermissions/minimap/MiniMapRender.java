@@ -72,6 +72,22 @@ class MiniMapRender extends Thread {
 		}
 		return 0;
 	}
+	/**
+	 * Custom get highest y method (since it's more reliable it seems)
+	 * Also this one only gets stone
+	 * @param world
+	 * @param x
+	 * @param z
+	 * @return y
+	 */
+	public int getHighestStoneY(World world, int x, int z) {
+		for (int i = 127; i >= 0; i--) {
+			int id = world.getBlockTypeIdAt(x, i, z);
+			if (id == 1)
+				return i;
+		}
+		return 0;
+	}
 
 	@Override
 	/**
@@ -92,7 +108,7 @@ class MiniMapRender extends Thread {
 				int j = player.getLocation().getBlockY();
 				int k = player.getLocation().getBlockZ();
 				double zoom = MiniMap.zoom;
-				if(getHighestBlockY(world, i, k) > j) {
+				if(getHighestStoneY(world, i, k) > j && j < 70) {
 					this.caveMap(world, player, zoom, i, k);
 				} else {
 					this.heightMap(world, player, zoom, i, k);
