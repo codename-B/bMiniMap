@@ -24,6 +24,7 @@ import javax.imageio.ImageIO;
 
 import org.spoutcraft.spoutcraftapi.World;
 import org.spoutcraft.spoutcraftapi.entity.ActivePlayer;
+import org.spoutcraft.spoutcraftapi.util.FixedLocation;
 /**
  * I guess this is big enough to deserve it's own class
  * @author codename_B
@@ -89,52 +90,13 @@ class MiniMapRender extends Thread {
 				World world = player.getWorld();
 
 				int i = player.getLocation().getBlockX();
+				int j = player.getLocation().getBlockY();
 				int k = player.getLocation().getBlockZ();
 				double zoom = MiniMap.zoom;
-				
-				/*
-				 * Generate the image and apply shading 
-				 */
-				for (int x = -MiniMap.radius; x < MiniMap.radius; x++) {
-					for (int z = -MiniMap.radius; z < MiniMap.radius; z++) {
-						int y = getHighestBlockY(world, (int) (i + x * zoom),
-								(int) (k + z * zoom));
-
-						int py = player.getLocation().getBlockY();
-
-						int id = world.getBlockTypeIdAt((int) (x * zoom + i),
-								(int) (y), (int) (z * zoom + k));
-
-						int dy = ((y-py)*2 + (y-64)*2);
-
-						Color color = colors.get(id);
-						if (color == null)
-							color = new Color(255, 255, 255);
-						// Height shading?
-						if (id != 0 && id != 8 && id != 9 && id != 10
-								&& id != 11) {
-
-							int r = color.getRed() + dy;
-							if (r > 255)
-								r = 255;
-							if (r < 0)
-								r = 0;
-							int g = (color.getGreen() + dy);
-							if (g > 255)
-								g = 255;
-							if (g < 0)
-								g = 0;
-							int b = color.getBlue() + dy;
-							if (b > 255)
-								b = 255;
-							if (b < 0)
-								b = 0;
-							color = new Color(r, g, b);
-						}
-
-						image.setRGB(x + MiniMap.radius, z + MiniMap.radius,
-								color.getRGB());
-					}
+				if(getHighestBlockY(world, i, k) > j) {
+					this.caveMap(world, player, zoom, i, k);
+				} else {
+					this.heightMap(world, player, zoom, i, k);
 				}
 				
 				/*
@@ -154,7 +116,6 @@ class MiniMapRender extends Thread {
 						else if(distance > MiniMap.radius*MiniMap.radius)
 						image.setRGB(x, z, transparent.getRGB());
 					}
-				
 				
 				// Let's rotate according to the player rotation
 				
@@ -178,6 +139,80 @@ class MiniMapRender extends Thread {
 				e.printStackTrace();
 			}
 
+		}
+	}
+	
+	public int getDiff(World world, int x, int i, int z) {
+		int shade = 0;
+		
+		for(int y=0; y<-10; y--)
+		if((world.getBlockAt(x, i, z).getRelative(0,y,0).getTypeId() == 0))
+		shade++;
+		
+		for(int y=0; y<10; y++)
+		if((world.getBlockAt(x, i, z).getRelative(0,y,0).getTypeId() == 0))
+		shade++;
+		
+		return shade*10;
+	}
+	
+	public void caveMap(World world, ActivePlayer player, double zoom, int i, int k) { 
+		
+		for (int x = -MiniMap.radius; x < MiniMap.radius; x++)
+			for (int z = -MiniMap.radius; z < MiniMap.radius; z++) {
+				int shade = getDiff(world, (int) (i + x * zoom), player.getLocation().getBlockY(),
+						(int) (k + z * zoom));
+				
+				Color color = new Color(0, shade, 0);
+				image.setRGB(x + MiniMap.radius, z + MiniMap.radius,
+						color.getRGB());
+			}
+	}
+	
+	public void heightMap(World world, ActivePlayer player, double zoom, int i, int k) {
+		/*
+		 * Generate the image and apply shading 
+		 */
+		for (int x = -MiniMap.radius; x < MiniMap.radius; x++) {
+			for (int z = -MiniMap.radius; z < MiniMap.radius; z++) {
+				int y = getHighestBlockY(world, (int) (i + x * zoom),
+						(int) (k + z * zoom));
+
+				int py = player.getLocation().getBlockY();
+
+				int id = world.getBlockTypeIdAt((int) (x * zoom + i),
+						(int) (y), (int) (z * zoom + k));
+
+				int dy = ((y-py)*2 + (y-64)*2);
+
+				Color color = colors.get(id);
+				if (color == null)
+					color = new Color(255, 255, 255);
+				// Height shading?
+				if (id != 0 && id != 8 && id != 9 && id != 10
+						&& id != 11) {
+
+					int r = color.getRed() + dy;
+					if (r > 255)
+						r = 255;
+					if (r < 0)
+						r = 0;
+					int g = (color.getGreen() + dy);
+					if (g > 255)
+						g = 255;
+					if (g < 0)
+						g = 0;
+					int b = color.getBlue() + dy;
+					if (b > 255)
+						b = 255;
+					if (b < 0)
+						b = 0;
+					color = new Color(r, g, b);
+				}
+
+				image.setRGB(x + MiniMap.radius, z + MiniMap.radius,
+						color.getRGB());
+			}
 		}
 	}
 

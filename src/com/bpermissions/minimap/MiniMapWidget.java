@@ -49,7 +49,12 @@ public class MiniMapWidget extends GenericWidget {
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, TextureUtils.getInstance("minimap")
 				.getId());
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-
+		float rot = (System.currentTimeMillis()/100) % 360;
+		// Attempt to rotate?
+		GL11.glTranslated(55, 55, 0);
+		GL11.glRotatef(rot, 0, 0, 1);
+		GL11.glTranslated(-55, -55, 0);
+		
 		// ChrizC told me to
 		GL11.glBegin(GL11.GL_QUADS);
 		// a, a
