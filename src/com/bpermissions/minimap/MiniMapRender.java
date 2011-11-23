@@ -24,7 +24,6 @@ import javax.imageio.ImageIO;
 
 import org.spoutcraft.spoutcraftapi.World;
 import org.spoutcraft.spoutcraftapi.entity.ActivePlayer;
-import org.spoutcraft.spoutcraftapi.util.FixedLocation;
 /**
  * I guess this is big enough to deserve it's own class
  * @author codename_B
@@ -116,10 +115,6 @@ class MiniMapRender extends Thread {
 						else if(distance > MiniMap.radius*MiniMap.radius)
 						image.setRGB(x, z, transparent.getRGB());
 					}
-				
-				// Let's rotate according to the player rotation
-				
-				// TODO figure out how to get player rotation in spout
 				
 				// Then finally send it to the buffer!
 				buffer = convertImageData(image);
@@ -281,6 +276,10 @@ class MiniMapRender extends Thread {
 		colors.put(39, c);
 		colors.put(40, c);
 		colors.put(59, c);
+		colors.put(103, c);
+		colors.put(104, c);
+		colors.put(105, c);
+		colors.put(106, c);
 		c = new Color(139, 69, 19);
 		colors.put(3, c);
 		colors.put(60, c);
@@ -295,6 +294,10 @@ class MiniMapRender extends Thread {
 		colors.put(85, c);
 		colors.put(86, c);
 		colors.put(90, c);
+		colors.put(96, c);
+		colors.put(99, c);
+		colors.put(100, c);
+		colors.put(107, c);
 		colors.put(6, new Color(139, 69, 19));
 		colors.put(7, new Color(52, 52, 52));
 		c = new Color(20, 20, 200);
