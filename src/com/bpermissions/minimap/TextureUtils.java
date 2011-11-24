@@ -150,7 +150,6 @@ public class TextureUtils {
 		
 		GL11.glRotatef(-rot, 0, 0, 1);
 		
-		System.out.println(width);
 		return buff;
 	}
 
