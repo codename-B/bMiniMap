@@ -25,8 +25,8 @@ import org.spoutcraft.spoutcraftapi.entity.ActivePlayer;
 class MiniMapRender extends Thread {
 
 	private final MiniMap parent;
-	public final Map<Integer, Color> colors;
-	public final Map<Integer, List<Color>> multiColors;
+	public final Map<Integer, Color> colors; = new HashMap<Integer, Color>();
+	public final Map<Integer, List<Color>> multiColors = new HashMap<Integer, List<Color>>();
 	
 	public final Color transparent = new Color(255, 255, 255 ,0);
 
@@ -45,9 +45,6 @@ class MiniMapRender extends Thread {
 	 */
 	MiniMapRender(MiniMap parent) {
 		this.parent = parent;
-		colors = new HashMap<Integer, Color>();
-		multiColors = new HashMap<Integer, List<Color>>();
-		setDefaultColors();
 		image = parent.getImage();
 		
 		// Extra test stuff
@@ -250,7 +247,7 @@ class MiniMapRender extends Thread {
 	/**
 	 * Yay HashMaps!
 	 */
-	private void setDefaultColors() {
+	static {
 		Color c;
 		colors.put(0, new Color(255, 255, 255));
 		colors.put(1, new Color(139, 137, 137));
