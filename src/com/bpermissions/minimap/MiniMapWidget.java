@@ -72,9 +72,8 @@ public class MiniMapWidget extends GenericWidget {
 		GL11.glVertex2d(100, 10);
 
 		GL11.glEnd();
-
 	}
-
+	
 	@Override
 	public void onTick() {
 		// Nothing

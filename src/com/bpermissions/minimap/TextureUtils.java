@@ -33,6 +33,28 @@ public class TextureUtils {
 
 	/**
 	 * Setup the initial Texture environment
+	 * but with a ByteBuffer
+	 */
+	public void initialUpload(ByteBuffer buff) {
+		System.out.println("Generating texture ID");
+		IntBuffer bInt = BufferUtils.createIntBuffer(1);
+		GL11.glGenTextures(bInt);
+		textureID = bInt.get(0);
+		System.out.println("ID:" + textureID + " Binding texture");
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureID);
+
+		GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, MiniMap.width,
+				MiniMap.width, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE,
+				buff);
+
+		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER,
+				GL11.GL_NEAREST);
+		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER,
+				GL11.GL_NEAREST);
+	}
+	
+	/**
+	 * Setup the initial Texture environment
 	 */
 	public void initialUpload() {
 		System.out.println("Generating texture ID");

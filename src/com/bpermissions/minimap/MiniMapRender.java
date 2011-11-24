@@ -12,6 +12,7 @@ import java.awt.image.DataBufferByte;
 import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
 import java.io.File;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -19,9 +20,12 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
 
 import javax.imageio.ImageIO;
 
+import org.spoutcraft.spoutcraftapi.Spoutcraft;
 import org.spoutcraft.spoutcraftapi.World;
 import org.spoutcraft.spoutcraftapi.entity.ActivePlayer;
 /**
@@ -36,13 +40,15 @@ class MiniMapRender extends Thread {
 	public final Map<Integer, List<Color>> multiColors;
 	
 	public final Color transparent = new Color(255, 255, 255 ,0);
-	
+
 	private BufferedImage image;
 
 	public ByteBuffer buffer;
 
 	public int id = 0;
 
+	private BufferedImage overlay;
+	
 	/**
 	 * MiniMapRender runs the miniMap render async
 	 * 
@@ -54,6 +60,23 @@ class MiniMapRender extends Thread {
 		multiColors = new HashMap<Integer, List<Color>>();
 		setDefaultColors();
 		image = parent.getImage();
+		
+		// Extra test stuff
+		try {
+		// Load the image from the jar? :O
+		File jarFile = new File(Spoutcraft.getAddonFolder(), "bMiniMap.jar");
+		JarFile jar = new JarFile(jarFile);
+		ZipEntry ze = jar.getEntry("roundmap.png");
+		InputStream is = jar.getInputStream(ze);
+		BufferedImage bmg = ImageIO.read(is);
+		// Don't forget cleanup!
+		is.close();
+		jar.close();
+		
+		overlay = bmg;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -128,9 +151,11 @@ class MiniMapRender extends Thread {
 						// - red dot in the center for player position
 						if(x == MiniMap.radius && z == MiniMap.radius)
 						image.setRGB(x, z, new Color(255, 0, 0, 255).getRGB());
-						else if(distance > MiniMap.radius*MiniMap.radius)
+						else if(distance >= (MiniMap.radius-2)*(MiniMap.radius-2))
 						image.setRGB(x, z, transparent.getRGB());
 					}
+				// Apply the overlay
+				image.getGraphics().drawImage(overlay, 0, 0, null);
 				
 				// Then finally send it to the buffer!
 				buffer = convertImageData(image);
@@ -145,7 +170,7 @@ class MiniMapRender extends Thread {
 
 			try {
 				// A decent wait
-				sleep(1000);
+				sleep(3000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -243,7 +268,7 @@ class MiniMapRender extends Thread {
 	 * @param bufferedImage
 	 * @return ByteBuffer (from bufferedImage)
 	 */
-	public ByteBuffer convertImageData(BufferedImage bufferedImage) {
+	public static ByteBuffer convertImageData(BufferedImage bufferedImage) {
 		ByteBuffer imageBuffer;
 		WritableRaster raster;
 		BufferedImage texImage;
