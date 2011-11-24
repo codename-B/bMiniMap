@@ -65,10 +65,10 @@ public class MiniMapWidget extends GenericWidget {
 		*/
 		// SCALE?
 		if(Keyboard.isKeyDown(Keyboard.KEY_DOWN)) {
-			if(scale > 0)
+			if(scale > -8)
 			scale--;
 		} else if(Keyboard.isKeyDown(Keyboard.KEY_UP)) {
-			if(scale < 10)
+			if(scale < 20)
 			scale++;
 		}
 		
