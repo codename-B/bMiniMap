@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
+import org.spoutcraft.spoutcraftapi.Spoutcraft;
 
 public class TextureUtils {
 
@@ -29,6 +30,60 @@ public class TextureUtils {
 			instances.put(key, new TextureUtils());
 		}
 		return instances.get(key);
+	}
+	
+	/**
+	 * Moved from MiniMapWidget
+	 * 
+	 * Parses the ByteBuffer and updates everything accordingly
+	 * Returns the ByteBuffer to be stored as a reference in MiniMapWidget
+	 * (or whatever parent class is handling things)
+	 * 
+	 * @param miniMap
+	 * @param buff
+	 * @return ByteBuffer (buff)
+	 */
+	public static ByteBuffer render(MiniMap miniMap, ByteBuffer buff) {
+		if (buff == null) {
+			// First render() ?
+			buff = miniMap.getRender().buffer;
+		} else if (buff != null) {
+			if (buff != miniMap.getRender().buffer) {
+				buff.clear();
+				buff = miniMap.getRender().buffer;
+				TextureUtils.getInstance("minimap").updateTexture(buff);
+				buff.clear();
+			}
+		}
+
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, TextureUtils.getInstance("minimap")
+				.getId());
+		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+		// This is manually translated to get it so that up is where the player is looking, conventiently
+		float rot = ((float) Spoutcraft.getActivePlayer().getLocation().getYaw() + 90) % 360;
+		// Attempt to rotate?
+		GL11.glTranslated(55, 55, 0);
+		GL11.glRotatef(rot, 0, 0, 1);
+		GL11.glTranslated(-55, -55, 0);
+		
+		// ChrizC told me to
+		GL11.glBegin(GL11.GL_QUADS);
+		// a, a
+		GL11.glTexCoord2d(1, 1);
+		GL11.glVertex2d(10, 10);
+		// a, A
+		GL11.glTexCoord2d(0, 1);
+		GL11.glVertex2d(10, 100);
+		// A, A
+		GL11.glTexCoord2d(0, 0);
+		GL11.glVertex2d(100, 100);
+		// A, a
+		GL11.glTexCoord2d(1, 0);
+		GL11.glVertex2d(100, 10);
+
+		GL11.glEnd();
+		
+		return buff;
 	}
 
 	/**
