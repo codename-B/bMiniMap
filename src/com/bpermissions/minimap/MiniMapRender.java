@@ -1,23 +1,12 @@
 package com.bpermissions.minimap;
 
 import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Transparency;
-import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.ComponentColorModel;
-import java.awt.image.DataBuffer;
-import java.awt.image.DataBufferByte;
-import java.awt.image.Raster;
-import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.jar.JarFile;
@@ -77,6 +66,7 @@ class MiniMapRender extends Thread {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
 	}
 
 	/**
@@ -147,18 +137,14 @@ class MiniMapRender extends Thread {
 						int zd = (z-center);
 						int distance = (xd*xd + zd*zd);
 						
-						// DEBUGGING
-						// - red dot in the center for player position
-						if(x == MiniMap.radius && z == MiniMap.radius)
-						image.setRGB(x, z, new Color(255, 0, 0, 255).getRGB());
-						else if(distance >= (MiniMap.radius-2)*(MiniMap.radius-2))
+						if(distance >= (MiniMap.radius-2)*(MiniMap.radius-2))
 						image.setRGB(x, z, transparent.getRGB());
 					}
 				// Apply the overlay
 				image.getGraphics().drawImage(overlay, 0, 0, null);
 				
 				// Then finally send it to the buffer!
-				buffer = convertImageData(image);
+				buffer = TextureUtils.convertImageData(image);
 				// This is debug code for my test environment but shouldn't affect most people, and too bad if it does ;)
 				File test = new File("test.png");
 				if (test.exists())
@@ -259,47 +245,6 @@ class MiniMapRender extends Thread {
 	 */
 	public MiniMap getParent() {
 		return parent;
-	}
-
-	@SuppressWarnings("rawtypes")
-	/**
-	 * Convert the bufferedImage into a byteBuffer
-	 * suitable for textures
-	 * @param bufferedImage
-	 * @return ByteBuffer (from bufferedImage)
-	 */
-	public static ByteBuffer convertImageData(BufferedImage bufferedImage) {
-		ByteBuffer imageBuffer;
-		WritableRaster raster;
-		BufferedImage texImage;
-
-		ColorModel glAlphaColorModel = new ComponentColorModel(
-				ColorSpace.getInstance(ColorSpace.CS_sRGB), new int[] { 8, 8,
-						8, 8 }, true, false, Transparency.TRANSLUCENT,
-				DataBuffer.TYPE_BYTE);
-
-		raster = Raster.createInterleavedRaster(DataBuffer.TYPE_BYTE,
-				bufferedImage.getWidth(), bufferedImage.getHeight(), 4, null);
-		texImage = new BufferedImage(glAlphaColorModel, raster, true,
-				new Hashtable());
-
-		// copy the source image into the produced image
-		Graphics g = texImage.getGraphics();
-		g.setColor(new Color(0f, 0f, 0f, 0f));
-		g.fillRect(0, 0, MiniMap.width, MiniMap.width);
-		g.drawImage(bufferedImage, 0, 0, null);
-
-		// build a byte buffer from the temporary image
-		// that be used by OpenGL to produce a texture.
-		byte[] data = ((DataBufferByte) texImage.getRaster().getDataBuffer())
-				.getData();
-
-		imageBuffer = ByteBuffer.allocateDirect(data.length);
-		imageBuffer.order(ByteOrder.nativeOrder());
-		imageBuffer.put(data, 0, data.length);
-		imageBuffer.flip();
-
-		return imageBuffer;
 	}
 
 	/**
