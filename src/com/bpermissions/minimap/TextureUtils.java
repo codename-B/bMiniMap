@@ -138,13 +138,13 @@ public class TextureUtils {
 		GL11.glVertex2d(0, 0);
 		// a, A
 		GL11.glTexCoord2d(0, 1);
-		GL11.glVertex2d(0, width);
+		GL11.glVertex2d(width, 0);
 		// A, A
 		GL11.glTexCoord2d(0, 0);
 		GL11.glVertex2d(width, width);
 		// A, a
 		GL11.glTexCoord2d(1, 0);
-		GL11.glVertex2d(width, 0);
+		GL11.glVertex2d(0, width);
 
 		GL11.glEnd();
 		
