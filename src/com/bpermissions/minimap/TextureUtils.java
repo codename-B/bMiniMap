@@ -120,35 +120,35 @@ public class TextureUtils {
 				.getId());
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 		// This is manually translated to get it so that up is where the player is looking, conventiently
-		float rot = ((float) Spoutcraft.getActivePlayer().getLocation().getYaw() + 90) % 360;
+		float rot = ((float) Spoutcraft.getActivePlayer().getLocation().getYaw() + 180) % 360;
 		// Attempt to rotate?
 		
 		int width = 100+MiniMapWidget.scale*10;
 		int center = (width)/2;
 		
 		GL11.glTranslated(center, center, 0);
-		GL11.glRotatef(rot, 0, 0, 1);
+		GL11.glRotatef(-rot, 0, 0, 1);
 		GL11.glTranslated(-center, -center, 0);
 		
 		// ChrizC told me to
 		GL11.glBegin(GL11.GL_QUADS);
 		
-		// a, a
-		GL11.glTexCoord2d(1, 1);
+		// A, A
+		GL11.glTexCoord2d(0, 0);
 		GL11.glVertex2d(0, 0);
 		// a, A
 		GL11.glTexCoord2d(0, 1);
-		GL11.glVertex2d(width, 0);
-		// A, A
-		GL11.glTexCoord2d(0, 0);
+		GL11.glVertex2d(0, width);
+		// a, a
+		GL11.glTexCoord2d(1, 1);
 		GL11.glVertex2d(width, width);
 		// A, a
 		GL11.glTexCoord2d(1, 0);
-		GL11.glVertex2d(0, width);
-
+		GL11.glVertex2d(width, 0);
+		
 		GL11.glEnd();
 		
-		GL11.glRotatef(-rot, 0, 0, 1);
+		//GL11.glRotatef(-rot, 0, 0, 1);
 		
 		return buff;
 	}
