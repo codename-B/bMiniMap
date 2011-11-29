@@ -14,7 +14,6 @@ import java.util.zip.ZipEntry;
 
 import javax.imageio.ImageIO;
 
-import org.spoutcraft.spoutcraftapi.Spoutcraft;
 import org.spoutcraft.spoutcraftapi.World;
 import org.spoutcraft.spoutcraftapi.entity.ActivePlayer;
 /**
@@ -53,7 +52,11 @@ class MiniMapRender extends Thread {
 		// Extra test stuff
 		try {
 		// Load the image from the jar? :O
-		File jarFile = new File(Spoutcraft.getAddonFolder(), "bMiniMap.jar");
+		
+		// Instead of using a hardcoded .jar file name, get whatever .jar contains this addon's code
+		//File jarFile = new File(Spoutcraft.getAddonFolder(), "bMiniMap.jar");	
+		File jarFile = new File(MiniMap.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+		
 		JarFile jar = new JarFile(jarFile);
 		ZipEntry ze = jar.getEntry("roundmap.png");
 		InputStream is = jar.getInputStream(ze);
