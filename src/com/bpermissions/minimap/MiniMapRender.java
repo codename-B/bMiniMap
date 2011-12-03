@@ -177,7 +177,7 @@ class MiniMapRender extends Thread {
 				int id = world.getBlockTypeIdAt((int) (x * zoom + i),
 						(int) (y), (int) (z * zoom + k));
 
-				int dy = ((y-py)*2 + (y-64)*2);
+				int dy = ((y-py)*2 + (y-74)*2);
 
 				Color color = colors.get(id);
 				if (color == null)
@@ -224,7 +224,7 @@ class MiniMapRender extends Thread {
 	 */
 	private void setDefaultColors() {
 		Color c;
-		colors.put(0, new Color(255, 255, 255));
+		colors.put(0, new Color(0, 0, 0));
 		colors.put(1, new Color(139, 137, 137));
 		c = new Color(15, 188, 0);
 		colors.put(2, c);
