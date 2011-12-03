@@ -26,7 +26,7 @@ public class PlayerIconCache {
 	
 	public BufferedImage get(String player) {
 		// If the image doesn't exist, get it!
-		if(players.get(player) == null) {
+		if(!players.containsKey(player)) {
 			// Extra test stuff
 			try {
 			URL url = new URL("http://direct.minotar.net/avatar/"+player+"/128.png");

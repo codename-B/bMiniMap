@@ -3,18 +3,13 @@ package com.bpermissions.minimap;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.jar.JarFile;
-import java.util.zip.ZipEntry;
-
 import javax.imageio.ImageIO;
 
-import org.spoutcraft.spoutcraftapi.Spoutcraft;
 import org.spoutcraft.spoutcraftapi.World;
 import org.spoutcraft.spoutcraftapi.entity.ActivePlayer;
 /**
@@ -36,8 +31,6 @@ class MiniMapRender extends Thread {
 
 	public int id = 0;
 
-	private BufferedImage overlay;
-	
 	/**
 	 * MiniMapRender runs the miniMap render async
 	 * 
@@ -49,24 +42,6 @@ class MiniMapRender extends Thread {
 		multiColors = new HashMap<Integer, List<Color>>();
 		setDefaultColors();
 		image = parent.getImage();
-		
-		// Extra test stuff
-		try {
-		// Load the image from the jar? :O
-		File jarFile = new File(Spoutcraft.getAddonFolder(), "bMiniMap.jar");
-		JarFile jar = new JarFile(jarFile);
-		ZipEntry ze = jar.getEntry("roundmap.png");
-		InputStream is = jar.getInputStream(ze);
-		BufferedImage bmg = ImageIO.read(is);
-		// Don't forget cleanup!
-		is.close();
-		jar.close();
-		
-		overlay = bmg;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
 	}
 
 	/**
@@ -140,11 +115,8 @@ class MiniMapRender extends Thread {
 						if(distance >= (MiniMap.radius-2)*(MiniMap.radius-2))
 						image.setRGB(x, z, transparent.getRGB());
 					}
-				// Apply the overlay
-				image.getGraphics().drawImage(overlay, 0, 0, null);
-				
 				// Then finally send it to the buffer!
-				buffer = TextureUtils.convertImageData(image);
+				buffer = TextureUtils.convertImageData(image, 128);
 				// This is debug code for my test environment but shouldn't affect most people, and too bad if it does ;)
 				File test = new File("test.png");
 				if (test.exists())
