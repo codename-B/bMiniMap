@@ -24,7 +24,6 @@ public class MiniMap {
 		image = new BufferedImage(width, width, BufferedImage.TYPE_INT_ARGB);
 		render = new MiniMapRender(this);
 		render.start();
-
 	}
 
 	/**

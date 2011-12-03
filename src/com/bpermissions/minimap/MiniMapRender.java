@@ -11,6 +11,7 @@ import java.util.Map;
 import javax.imageio.ImageIO;
 
 import org.spoutcraft.spoutcraftapi.World;
+import org.spoutcraft.spoutcraftapi.World.Environment;
 import org.spoutcraft.spoutcraftapi.entity.ActivePlayer;
 /**
  * I guess this is big enough to deserve it's own class
@@ -22,12 +23,14 @@ class MiniMapRender extends Thread {
 	private final MiniMap parent;
 	public final Map<Integer, Color> colors;
 	public final Map<Integer, List<Color>> multiColors;
+	// Yes, it's the coordinates image!
 	
 	public final Color transparent = new Color(255, 255, 255 ,0);
 
 	private BufferedImage image;
 
 	public ByteBuffer buffer;
+	public ByteBuffer cBuffer;
 
 	public int id = 0;
 
@@ -89,16 +92,20 @@ class MiniMapRender extends Thread {
 				image = parent.getImage();
 				ActivePlayer player = parent.getParent().getClient()
 						.getActivePlayer();
-
+				
 				World world = player.getWorld();
 
 				int i = player.getLocation().getBlockX();
 				int j = player.getLocation().getBlockY();
 				int k = player.getLocation().getBlockZ();
+				
 				double zoom = MiniMap.zoom;
-				if(getHighestStoneY(world, i, k) > j && j < 70) {
+				if(getHighestStoneY(world, i, k) > j && j < 90) {
 					this.caveMap(world, player, zoom, i, k);
-				} else {
+				} else if(world.getEnvironment() == Environment.NETHER) {
+					this.caveMap(world, player, zoom, i, k);
+				}	
+				else {
 					this.heightMap(world, player, zoom, i, k);
 				}
 				
@@ -128,7 +135,7 @@ class MiniMapRender extends Thread {
 
 			try {
 				// A decent wait
-				sleep(1000);
+				sleep(250);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -167,13 +174,13 @@ class MiniMapRender extends Thread {
 		/*
 		 * Generate the image and apply shading 
 		 */
+		int py = player.getLocation().getBlockY();
 		for (int x = -MiniMap.radius; x < MiniMap.radius; x++) {
 			for (int z = -MiniMap.radius; z < MiniMap.radius; z++) {
+				
 				int y = getHighestBlockY(world, (int) (i + x * zoom),
 						(int) (k + z * zoom));
-
-				int py = player.getLocation().getBlockY();
-
+				
 				int id = world.getBlockTypeIdAt((int) (x * zoom + i),
 						(int) (y), (int) (z * zoom + k));
 

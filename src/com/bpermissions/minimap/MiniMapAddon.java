@@ -16,6 +16,7 @@ public class MiniMapAddon extends JavaAddon {
 	File texture = new File("addons/texture.png");
 	MiniMapWidget widget;
 	public boolean isEnabled = false;
+	MiniMapLabel label;
 
 	public void loadOverlay() {
 		try {
@@ -57,9 +58,11 @@ public class MiniMapAddon extends JavaAddon {
 		// onEnable() doesn't print a full stacktrace on it's own
 		try {
 			widget = new MiniMapWidget(this);
-			
+			label = new MiniMapLabel(this);
 			this.getClient().getActivePlayer().getMainScreen()
 					.attachWidget(this, widget);
+			this.getClient().getActivePlayer().getMainScreen()
+					.attachWidget(this, label);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
