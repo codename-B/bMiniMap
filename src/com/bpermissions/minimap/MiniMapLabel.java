@@ -1,27 +1,30 @@
 package com.bpermissions.minimap;
 
-import org.spoutcraft.spoutcraftapi.gui.Color;
 import org.spoutcraft.spoutcraftapi.gui.GenericLabel;
 import org.spoutcraft.spoutcraftapi.util.FixedLocation;
 
 public class MiniMapLabel extends GenericLabel {
+	private final MiniMapAddon parent;
 	
-	MiniMapAddon parent;
-	FixedLocation loc;
 	public MiniMapLabel(MiniMapAddon parent) {
-		super("0, 0, 0");
-		this.setVisible(true);
 		this.parent = parent;
-		this.setTextColor(new Color(255, 255, 255, 255));
+		//this.setTextColor(new Color(255, 255, 255, 0));
+		//You had alpha at max, also this currently is an odd
+		//black, so I left it white.
 	}
-
+	
+	@Override
+	public void onTick() {
+		FixedLocation loc = parent.getClient().getActivePlayer().getLocation();
+		this.setText("X: " + Math.round(loc.getX()) 
+				+ " Y: " + Math.round(loc.getY()) 
+				+ " Z: " + Math.round(loc.getZ()));
+	}
+	
 	@Override
 	public void render() {
-		this.setX((int) (this.getScreen().getWidth()/2));
-		this.setY((int) (this.getScreen().getHeight()/2));
-		loc = parent.getClient().getActivePlayer().getLocation();
-
-		this.setText(loc.getBlockX()+", "+loc.getBlockY()+", "+loc.getBlockZ());
+		int x = (int) this.getScreen().getWidth()-100;
+		this.setX(x).setY(MiniMap.width-20);
 		super.render();
 	}
 
