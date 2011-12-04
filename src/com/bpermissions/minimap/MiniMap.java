@@ -4,7 +4,7 @@ import java.awt.image.BufferedImage;
 
 public class MiniMap {
 
-	public static int width = 128;
+	public static int width = 256;
 	public static int radius = width / 2;
 	public static double zoom = 1;
 

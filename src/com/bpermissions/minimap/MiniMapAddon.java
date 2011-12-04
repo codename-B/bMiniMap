@@ -50,7 +50,7 @@ public class MiniMapAddon extends JavaAddon {
 
 	@Override
 	public void onEnable() {
-		TextureUtils.getInstance("minimap").initialUpload(128);
+		TextureUtils.getInstance("minimap").initialUpload(256);
 		loadOverlay();
 		isEnabled = true;
 		System.out.println("MiniMap enabled!");
