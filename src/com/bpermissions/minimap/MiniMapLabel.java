@@ -16,9 +16,9 @@ public class MiniMapLabel extends GenericLabel {
 	@Override
 	public void onTick() {
 		FixedLocation loc = parent.getClient().getActivePlayer().getLocation();
-		this.setText("X: " + Math.round(loc.getX()) 
-				+ " Y: " + Math.round(loc.getY()) 
-				+ " Z: " + Math.round(loc.getZ()));
+		this.setText("X: " + loc.getBlockX() 
+				+ " Y: " + loc.getBlockY() 
+				+ " Z: " + loc.getBlockZ());
 	}
 	
 	@Override
