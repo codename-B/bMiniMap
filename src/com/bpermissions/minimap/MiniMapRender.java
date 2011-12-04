@@ -1,11 +1,13 @@
 package com.bpermissions.minimap;
 
 import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import javax.imageio.ImageIO;
@@ -19,6 +21,8 @@ import org.spoutcraft.spoutcraftapi.entity.ActivePlayer;
  *
  */
 class MiniMapRender extends Thread {
+	
+	public static MiniMapRender single;
 
 	private final MiniMap parent;
 	public final Map<Integer, Color> colors;
@@ -26,7 +30,9 @@ class MiniMapRender extends Thread {
 	// Yes, it's the coordinates image!
 	
 	public final Color transparent = new Color(255, 255, 255 ,0);
-
+	
+	public LinkedList<MiniMapLocation> locList = new LinkedList<MiniMapLocation>();
+	
 	private BufferedImage image;
 
 	public ByteBuffer buffer;
@@ -94,12 +100,17 @@ class MiniMapRender extends Thread {
 						.getActivePlayer();
 				
 				World world = player.getWorld();
-
+				
 				int i = player.getLocation().getBlockX();
 				int j = player.getLocation().getBlockY();
 				int k = player.getLocation().getBlockZ();
 				
-				double zoom = MiniMap.zoom;
+				MiniMapLocation loc = new MiniMapLocation(world, i, k);
+				locList.add(loc);
+				if(locList.size() > 128)
+					locList.remove(0);
+				
+				double zoom = 1;
 				if(getHighestStoneY(world, i, k) > j && j < 90) {
 					this.caveMap(world, player, zoom, i, k);
 				} else if(world.getEnvironment() == Environment.NETHER) {
@@ -115,6 +126,7 @@ class MiniMapRender extends Thread {
 				for(int x=0; x<MiniMap.width; x++)
 					for(int z=0; z<MiniMap.width; z++) {
 						int center = MiniMap.radius;
+						
 						int xd = (x-center);
 						int zd = (z-center);
 						int distance = (xd*xd + zd*zd);
@@ -135,7 +147,7 @@ class MiniMapRender extends Thread {
 
 			try {
 				// A decent wait
-				sleep(250);
+				sleep(500);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -157,12 +169,23 @@ class MiniMapRender extends Thread {
 		return shade*10;
 	}
 	
+	public MiniMapLocation inList(int x, int z) {
+		for(MiniMapLocation loc : locList)
+			if(loc.nearby(x, z, 0))
+				return loc;
+		return null;
+	}
+	
 	public void caveMap(World world, ActivePlayer player, double zoom, int i, int k) { 
 		
+		int tx, tz, ty;
 		for (int x = -MiniMap.radius; x < MiniMap.radius; x++)
 			for (int z = -MiniMap.radius; z < MiniMap.radius; z++) {
-				int shade = getDiff(world, (int) (i + x * zoom), player.getLocation().getBlockY(),
-						(int) (k + z * zoom));
+				tx = (int) (i + x * zoom);
+				tz = (int) (k + z * zoom);
+				ty = player.getLocation().getBlockY();
+				int shade = getDiff(world, tx, ty,
+						tz);
 				
 				Color color = new Color(0, shade, 0);
 				image.setRGB(x + MiniMap.radius, z + MiniMap.radius,
@@ -174,25 +197,30 @@ class MiniMapRender extends Thread {
 		/*
 		 * Generate the image and apply shading 
 		 */
+		int tx, tz;
+		Map<Integer, Integer[]> pairs = new HashMap<Integer, Integer[]>();
+		
 		int py = player.getLocation().getBlockY();
-		for (int x = -MiniMap.radius; x < MiniMap.radius; x++) {
+		for (int x = -MiniMap.radius; x < MiniMap.radius; x++)
 			for (int z = -MiniMap.radius; z < MiniMap.radius; z++) {
+				tx = (int) (i + x * zoom);
+				tz = (int) (k + z * zoom);
+				MiniMapLocation test = inList(tx, tz);
+				if(test != null) {
+				int index = test.hashCode();
+				Integer[] pair = {(x+MiniMap.radius), (z+MiniMap.radius)};
+				pairs.put(index, pair);
+				}
+				int y = getHighestBlockY(world, tx, tz);
 				
-				int y = getHighestBlockY(world, (int) (i + x * zoom),
-						(int) (k + z * zoom));
+				int id = world.getBlockTypeIdAt(tx, y, tz);
+
+				int dy = ((y-py)*2 + (y-64)*2);
 				
-				int id = world.getBlockTypeIdAt((int) (x * zoom + i),
-						(int) (y), (int) (z * zoom + k));
-
-				int dy = ((y-py)*2 + (y-74)*2);
-
 				Color color = colors.get(id);
 				if (color == null)
 					color = new Color(255, 255, 255);
 				// Height shading?
-				if (id != 0 && id != 8 && id != 9 && id != 10
-						&& id != 11) {
-
 					int r = color.getRed() + dy;
 					if (r > 255)
 						r = 255;
@@ -209,11 +237,37 @@ class MiniMapRender extends Thread {
 					if (b < 0)
 						b = 0;
 					color = new Color(r, g, b);
-				}
-
 				image.setRGB(x + MiniMap.radius, z + MiniMap.radius,
 						color.getRGB());
 			}
+		/*
+		 * Now we have navigation history, handy if you
+		 * want to find your way back to whence you came from!
+		 */
+		if(pairs.size() > 1) {
+		Graphics gr = image.getGraphics();
+		gr.setColor(Color.RED);
+		
+		for(int p=locList.getFirst().hashCode(); p<locList.getLast().hashCode()-1; p++) {
+			System.out.println(p);
+			if(pairs.containsKey(p) && pairs.containsKey(p+1)) {
+			Integer[] a = pairs.get(p);
+			Integer[] b = pairs.get(p+1);
+			try {
+			int x1 = a[0];
+			int y1 = a[1];
+			int x2 = b[0];
+			int y2 = b[1];
+			
+			gr.drawLine(x1, y1, x2, y2);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		}
+		pairs.clear();
+		gr.finalize();
 		}
 	}
 
@@ -343,6 +397,52 @@ class MiniMapRender extends Thread {
 		variants.add(new Color(167, 45, 41));
 		variants.add(new Color(10, 10, 10));
 		multiColors.put(35, variants);
+	}
+	
+	/*
+	 * A couple of static utility classes
+	 */
+
+	static class MiniMapLocation {
+		
+		private final int x;
+		private final int z;
+		private final World world;
+		private final int time;
+		
+		private static int index = 0;
+		
+		public MiniMapLocation(World world, int x, int z) {
+			this.x = x;
+			this.z = z;
+			this.world = world;
+			index++;
+			time = index;
+		}
+		
+		public int getX() {
+			return x;
+		}
+		
+		public int getZ() {
+			return z;
+		}
+		
+		public World getWorld() {
+			return world;
+		}
+		
+		@Override
+		public int hashCode() {
+			return (int) time;
+		}
+
+		public boolean nearby(int x, int z, int range) {
+			if(x >= getX()-range && x <= getX()+range)
+				if(z >= getZ()-range && z <= getZ()+range)
+				return true;
+		return false;
+		}
 	}
 
 }

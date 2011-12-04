@@ -11,7 +11,7 @@ public class MiniMap {
 	private final MiniMapRender render;
 	private BufferedImage image;
 	private MiniMapAddon parent;
-
+	
 	/**
 	 * We initialise and reuse the BufferedImage here for the whole
 	 * shizzledizzle

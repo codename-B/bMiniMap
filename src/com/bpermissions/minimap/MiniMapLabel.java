@@ -20,7 +20,7 @@ public class MiniMapLabel extends GenericLabel {
 		this.setX((int) (this.getScreen().getWidth()/2));
 		this.setY((int) (this.getScreen().getHeight()/2));
 		loc = parent.getClient().getActivePlayer().getLocation();
-		System.out.println(this.getText());
+
 		this.setText(loc.getBlockX()+", "+loc.getBlockY()+", "+loc.getBlockZ());
 		super.render();
 	}
