@@ -179,11 +179,21 @@ class MiniMapRender extends Thread {
 	public void caveMap(World world, ActivePlayer player, double zoom, int i, int k) { 
 		
 		int tx, tz, ty;
+		Map<Integer, Integer[]> pairs = new HashMap<Integer, Integer[]>();
+		
 		for (int x = -MiniMap.radius; x < MiniMap.radius; x++)
 			for (int z = -MiniMap.radius; z < MiniMap.radius; z++) {
 				tx = (int) (i + x * zoom);
 				tz = (int) (k + z * zoom);
 				ty = player.getLocation().getBlockY();
+				
+				MiniMapLocation test = inList(tx, tz);
+				if(test != null) {
+				int index = test.hashCode();
+				Integer[] pair = {(x+MiniMap.radius), (z+MiniMap.radius)};
+				pairs.put(index, pair);
+				}
+				
 				int shade = getDiff(world, tx, ty,
 						tz);
 				
@@ -191,6 +201,7 @@ class MiniMapRender extends Thread {
 				image.setRGB(x + MiniMap.radius, z + MiniMap.radius,
 						color.getRGB());
 			}
+		writePath(pairs);
 	}
 	
 	public void heightMap(World world, ActivePlayer player, double zoom, int i, int k) {
@@ -205,12 +216,14 @@ class MiniMapRender extends Thread {
 			for (int z = -MiniMap.radius; z < MiniMap.radius; z++) {
 				tx = (int) (i + x * zoom);
 				tz = (int) (k + z * zoom);
+				
 				MiniMapLocation test = inList(tx, tz);
 				if(test != null) {
 				int index = test.hashCode();
 				Integer[] pair = {(x+MiniMap.radius), (z+MiniMap.radius)};
 				pairs.put(index, pair);
 				}
+				
 				int y = getHighestBlockY(world, tx, tz);
 				
 				int id = world.getBlockTypeIdAt(tx, y, tz);
@@ -240,6 +253,10 @@ class MiniMapRender extends Thread {
 				image.setRGB(x + MiniMap.radius, z + MiniMap.radius,
 						color.getRGB());
 			}
+		writePath(pairs);
+	}
+	
+	public void writePath(Map<Integer, Integer[]> pairs) {
 		/*
 		 * Now we have navigation history, handy if you
 		 * want to find your way back to whence you came from!
@@ -249,7 +266,6 @@ class MiniMapRender extends Thread {
 		gr.setColor(Color.RED);
 		
 		for(int p=locList.getFirst().hashCode()+1; p<locList.getLast().hashCode()-2; p++) {
-			System.out.println(p);
 			if(pairs.containsKey(p) && pairs.containsKey(p+1)) {
 			Integer[] a = pairs.get(p);
 			Integer[] b = pairs.get(p+1);
