@@ -248,7 +248,7 @@ class MiniMapRender extends Thread {
 		Graphics gr = image.getGraphics();
 		gr.setColor(Color.RED);
 		
-		for(int p=locList.getFirst().hashCode(); p<locList.getLast().hashCode()-1; p++) {
+		for(int p=locList.getFirst().hashCode()+1; p<locList.getLast().hashCode()-2; p++) {
 			System.out.println(p);
 			if(pairs.containsKey(p) && pairs.containsKey(p+1)) {
 			Integer[] a = pairs.get(p);
