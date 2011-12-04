@@ -24,7 +24,7 @@ public class MiniMapAddon extends JavaAddon {
 			
 			// Instead of using a hardcoded .jar file name, get whatever .jar contains this addon's code
 			//File jarFile = new File(Spoutcraft.getAddonFolder(), "bMiniMap.jar");	
-			File jarFile = new File(MiniMap.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+			File jarFile = new File(MiniMap.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
 			
 			JarFile jar = new JarFile(jarFile);
 			ZipEntry ze = jar.getEntry("roundmap.png");
