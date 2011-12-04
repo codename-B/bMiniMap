@@ -15,8 +15,8 @@ public class MiniMapAddon extends JavaAddon {
 
 	File texture = new File("addons/texture.png");
 	MiniMapWidget widget;
-	public boolean isEnabled = false;
 	MiniMapLabel label;
+	public boolean isEnabled = false;
 
 	public void loadOverlay() {
 		try {
