@@ -2,6 +2,7 @@ package com.bpermissions.minimap;
 
 import java.nio.ByteBuffer;
 
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 import org.spoutcraft.spoutcraftapi.addon.java.JavaAddon;
 import org.spoutcraft.spoutcraftapi.gui.GenericWidget;
@@ -38,7 +39,15 @@ public class MiniMapWidget extends GenericWidget {
 	 * We then draw a quad :)
 	 */
 	public void render() {
-		tx = this.getScreen().getWidth()-100;
+		Keyboard.poll();
+		if(Keyboard.isKeyDown(Keyboard.KEY_UP)) {
+			if(scale<128)
+			scale++;
+		} else if(Keyboard.isKeyDown(Keyboard.KEY_DOWN)) {
+			if(scale>-128)
+			scale--;
+		}
+				tx = this.getScreen().getWidth()-100;
 		// Global translation
 		GL11.glTranslated(tx, ty, 0);
 		

@@ -36,9 +36,6 @@ class MiniMapRender extends Thread {
 	private BufferedImage image;
 
 	public ByteBuffer buffer;
-	public ByteBuffer cBuffer;
-
-	public int id = 0;
 
 	/**
 	 * MiniMapRender runs the miniMap render async
@@ -52,7 +49,20 @@ class MiniMapRender extends Thread {
 		setDefaultColors();
 		image = parent.getImage();
 	}
-
+	
+	
+	public int getRelativeShading(World world, int x, int y, int z) {
+		int amount = 0;
+		if(world.getBlockTypeIdAt(x+1, y, z) == 0)
+			amount ++;
+		if(world.getBlockTypeIdAt(x-1, y, z) == 0)
+			amount ++;
+		if(world.getBlockTypeIdAt(x, y, z+1) == 0)
+			amount ++;
+		if(world.getBlockTypeIdAt(x, y, z-1) == 0)
+			amount ++;
+		return amount;
+	}
 	/**
 	 * Custom get highest y method (since it's more reliable it seems)
 	 * 
@@ -110,7 +120,8 @@ class MiniMapRender extends Thread {
 				if(locList.size() > 128)
 					locList.remove(0);
 				
-				double zoom = 1;
+				int zoom = 128 + MiniMapWidget.scale;
+				
 				if(getHighestStoneY(world, i, k) > j && j < 90) {
 					this.caveMap(world, player, zoom, i, k);
 				} else if(world.getEnvironment() == Environment.NETHER) {
@@ -176,15 +187,15 @@ class MiniMapRender extends Thread {
 		return null;
 	}
 	
-	public void caveMap(World world, ActivePlayer player, double zoom, int i, int k) { 
+	public void caveMap(World world, ActivePlayer player, int radius, int i, int k) { 
 		
 		int tx, tz, ty;
 		Map<Integer, Integer[]> pairs = new HashMap<Integer, Integer[]>();
-		
-		for (int x = -MiniMap.radius; x < MiniMap.radius; x++)
-			for (int z = -MiniMap.radius; z < MiniMap.radius; z++) {
-				tx = (int) (i + x * zoom);
-				tz = (int) (k + z * zoom);
+		BufferedImage image = new BufferedImage(radius*2, radius*2, BufferedImage.TYPE_INT_ARGB);
+		for (int x = -radius; x < radius; x++)
+			for (int z = -radius; z < radius; z++) {
+				tx = (int) (i + x);
+				tz = (int) (k + z);
 				ty = player.getLocation().getBlockY();
 				
 				MiniMapLocation test = inList(tx, tz);
@@ -198,24 +209,31 @@ class MiniMapRender extends Thread {
 						tz);
 				
 				Color color = new Color(0, shade, 0);
-				image.setRGB(x + MiniMap.radius, z + MiniMap.radius,
+				image.setRGB(x + radius, z + radius,
 						color.getRGB());
 			}
 		writePath(pairs);
+		Graphics gr = this.image.getGraphics();
+		gr.drawImage(image, 0, 0, 256, 256, null);
+		gr.dispose();
+		image = null;
 	}
 	
-	public void heightMap(World world, ActivePlayer player, double zoom, int i, int k) {
+	public void heightMap(World world, ActivePlayer player, int radius, int i, int k) {
 		/*
 		 * Generate the image and apply shading 
 		 */
 		int tx, tz;
+		int y, id, dy, diff;
+		Color color;
 		Map<Integer, Integer[]> pairs = new HashMap<Integer, Integer[]>();
-		
 		int py = player.getLocation().getBlockY();
-		for (int x = -MiniMap.radius; x < MiniMap.radius; x++)
-			for (int z = -MiniMap.radius; z < MiniMap.radius; z++) {
-				tx = (int) (i + x * zoom);
-				tz = (int) (k + z * zoom);
+		
+		BufferedImage image = new BufferedImage(radius*2, radius*2, BufferedImage.TYPE_INT_ARGB);
+		for (int x = -radius; x < radius; x++)
+			for (int z = -radius; z < radius; z++) {
+				tx = (int) (i + x);
+				tz = (int) (k + z);
 				
 				MiniMapLocation test = inList(tx, tz);
 				if(test != null) {
@@ -224,13 +242,13 @@ class MiniMapRender extends Thread {
 				pairs.put(index, pair);
 				}
 				
-				int y = getHighestBlockY(world, tx, tz);
+				y = getHighestBlockY(world, tx, tz);
+				id = world.getBlockTypeIdAt(tx, y, tz);
+				dy = ((y-py)*2 + (y-64)*2);
+				diff = getRelativeShading(world, tx, y, tz)*25;
 				
-				int id = world.getBlockTypeIdAt(tx, y, tz);
-
-				int dy = ((y-py)*2 + (y-64)*2);
-				
-				Color color = colors.get(id);
+				dy = dy-diff;
+				color = colors.get(id);
 				if (color == null)
 					color = new Color(255, 255, 255);
 				// Height shading?
@@ -250,10 +268,14 @@ class MiniMapRender extends Thread {
 					if (b < 0)
 						b = 0;
 					color = new Color(r, g, b);
-				image.setRGB(x + MiniMap.radius, z + MiniMap.radius,
+				image.setRGB(x + radius, z + radius,
 						color.getRGB());
 			}
 		writePath(pairs);
+		Graphics gr = this.image.getGraphics();
+		gr.drawImage(image, 0, 0, 256, 256, null);
+		gr.dispose();
+		image = null;
 	}
 	
 	public void writePath(Map<Integer, Integer[]> pairs) {
@@ -283,7 +305,7 @@ class MiniMapRender extends Thread {
 		
 		}
 		pairs.clear();
-		gr.finalize();
+		gr.dispose();
 		}
 	}
 
