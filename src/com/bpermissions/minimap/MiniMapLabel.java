@@ -1,11 +1,10 @@
 package com.bpermissions.minimap;
 
-import org.spoutcraft.spoutcraftapi.addon.java.JavaAddon;
-import org.spoutcraft.spoutcraftapi.entity.ActivePlayer;
 import org.spoutcraft.spoutcraftapi.gui.GenericLabel;
+import org.spoutcraft.spoutcraftapi.util.FixedLocation;
 
 public class MiniMapLabel extends GenericLabel {
-	private final JavaAddon parent;
+	private final MiniMapAddon parent;
 	
 	public MiniMapLabel(MiniMapAddon parent) {
 		this.parent = parent;
@@ -16,10 +15,10 @@ public class MiniMapLabel extends GenericLabel {
 	
 	@Override
 	public void onTick() {
-		ActivePlayer player = parent.getClient().getActivePlayer();
-		this.setText("X: " + Math.round(player.getLocation().getX()) 
-				+ " Y: " + Math.round(player.getLocation().getY()) 
-				+ " Z: " + Math.round(player.getLocation().getZ()));
+		FixedLocation loc = parent.getClient().getActivePlayer().getLocation();
+		this.setText("X: " + Math.round(loc.getX()) 
+				+ " Y: " + Math.round(loc.getY()) 
+				+ " Z: " + Math.round(loc.getZ()));
 	}
 	
 	@Override
