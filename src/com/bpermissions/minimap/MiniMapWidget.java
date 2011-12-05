@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
+import org.spoutcraft.spoutcraftapi.ChatColor;
 import org.spoutcraft.spoutcraftapi.addon.java.JavaAddon;
 import org.spoutcraft.spoutcraftapi.gui.GenericWidget;
 import org.spoutcraft.spoutcraftapi.gui.WidgetType;
@@ -16,7 +17,7 @@ public class MiniMapWidget extends GenericWidget {
 	
 	public static double tx = 0;
 	public static double ty = 0;
-	public static int scale = 16;
+	public static int scale = 0;
 	
 	public MiniMapWidget(MiniMapAddon parent) {
 		this.parent = parent;
@@ -27,7 +28,8 @@ public class MiniMapWidget extends GenericWidget {
 	public WidgetType getType() {
 		return WidgetType.Texture;
 	}
-
+	
+	boolean keyDown = false;
 	@Override
 	/**
 	 * This is where all the fun stuff happens, we check to see
@@ -40,12 +42,44 @@ public class MiniMapWidget extends GenericWidget {
 	 */
 	public void render() {
 		Keyboard.poll();
-		if(Keyboard.isKeyDown(Keyboard.KEY_UP)) {
-			if(scale<128)
-			scale++;
-		} else if(Keyboard.isKeyDown(Keyboard.KEY_DOWN)) {
-			if(scale>-128)
-			scale--;
+		if(Keyboard.isKeyDown(Keyboard.KEY_M)) {
+			if(keyDown == false) {
+				if(scale == 0) {
+				scale = 16;
+				getParent().getClient().getActivePlayer().sendMessage(ChatColor.BLUE+"** ZOOM LEVEL 1");
+				}
+				else if(scale == 16) {
+				scale = 32;
+				getParent().getClient().getActivePlayer().sendMessage(ChatColor.BLUE+"** ZOOM LEVEL 2");
+				}
+				else if(scale == 32) {
+				scale = 48;
+				getParent().getClient().getActivePlayer().sendMessage(ChatColor.BLUE+"** ZOOM LEVEL 3");
+				}
+				else if(scale == 48) {
+				scale = 64;
+				getParent().getClient().getActivePlayer().sendMessage(ChatColor.BLUE+"** ZOOM LEVEL 4");
+				}
+				else if(scale == 64) {
+				scale = 80;
+				getParent().getClient().getActivePlayer().sendMessage(ChatColor.BLUE+"** ZOOM LEVEL 5");
+				}
+				else if(scale == 80) {
+				scale = 96;
+				getParent().getClient().getActivePlayer().sendMessage(ChatColor.BLUE+"** ZOOM LEVEL 6");
+				}
+				else if(scale == 96) {
+				scale = 128;
+				getParent().getClient().getActivePlayer().sendMessage(ChatColor.BLUE+"** ZOOM LEVEL 7");
+				}
+				else if(scale == 128) {
+				scale = 0;
+				getParent().getClient().getActivePlayer().sendMessage(ChatColor.BLUE+"** ZOOM LEVEL 0");
+				}
+			keyDown = true;
+			}
+		} else {
+			keyDown = false;
 		}
 				tx = this.getScreen().getWidth()-100;
 		// Global translation

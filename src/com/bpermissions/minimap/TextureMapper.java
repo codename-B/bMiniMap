@@ -1,5 +1,6 @@
 package com.bpermissions.minimap;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -170,12 +171,24 @@ public class TextureMapper {
 			return blank.clone();
 	}
 	
+	Map<Integer, Color> colors = new HashMap<Integer, Color>();
+	public Color getColor(int id) {
+		if(colors.containsKey(id))
+			return colors.get(id);
+		
+		BufferedImage img = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+		img.getGraphics().drawImage(getTexture(id), 0, 0, 1, 1, null);
+		Color color = new Color(img.getRGB(0, 0));
+		colors.put(id, color);
+		return color;
+	}
+	
 	public BufferedImage getTexture(int id) {
 		Integer[] pair = getPair(id);
 		int x0 = pair[0]*16;
 		int y0 = pair[1]*16;
-		int x1 = x0+8;
-		int y1 = y0+8;
+		int x1 = x0+16;
+		int y1 = y0+16;
 		BufferedImage img = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
 		Graphics gr = img.getGraphics();
 		gr.drawImage(terrain, 0, 0, 16, 16, x0, y0, x1, y1, null);
