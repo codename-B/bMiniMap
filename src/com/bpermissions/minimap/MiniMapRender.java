@@ -3,8 +3,13 @@ package com.bpermissions.minimap;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
+import java.awt.image.BufferedImageOp;
+import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.Map;
+
+import javax.imageio.ImageIO;
+
 import org.spoutcraft.spoutcraftapi.World;
 import org.spoutcraft.spoutcraftapi.World.Environment;
 import org.spoutcraft.spoutcraftapi.entity.ActivePlayer;
@@ -21,7 +26,7 @@ class MiniMapRender extends Thread {
 
 	// Yes, it's the coordinates image!
 	
-	public final Color transparent = new Color(255, 255, 255 ,0);
+	public static final Color transparent = new Color(255, 255, 255 ,0);
 	
 	//public LinkedList<MiniMapLocation> locList = new LinkedList<MiniMapLocation>();
 	
@@ -60,6 +65,23 @@ class MiniMapRender extends Thread {
 			amount ++;
 		else
 			amount--;
+		
+		if(world.getBlockTypeIdAt(x+1, y-1, z) == 0)
+			amount ++;
+		else
+			amount--;
+		if(world.getBlockTypeIdAt(x-1, y-1, z) == 0)
+			amount ++;
+		else
+			amount--;
+		if(world.getBlockTypeIdAt(x, y-1, z+1) == 0)
+			amount ++;
+		else
+			amount--;
+		if(world.getBlockTypeIdAt(x, y-1, z-1) == 0)
+			amount ++;
+		else
+			amount--;
 		return amount;
 	}
 	/**
@@ -74,6 +96,15 @@ class MiniMapRender extends Thread {
 		for (int i = 127; i >= 0; i--) {
 			int id = world.getBlockTypeIdAt(x, i, z);
 			if (id > 0)
+				return i;
+		}
+		return 0;
+	}
+	
+	public int getHighestNonTransparentBlockY(World world, int x, int z) {
+		for (int i = 127; i >= 0; i--) {
+			int id = world.getBlockTypeIdAt(x, i, z);
+			if (id > 0 && !map.isTransparent(id))
 				return i;
 		}
 		return 0;
@@ -217,6 +248,11 @@ class MiniMapRender extends Thread {
 		image = null;
 	}
 	
+	/*
+	 * Pathing has been scrapped for now
+	 * 
+	 * HD minimap is the focus - we should work on transparent blocks
+	 */
 	public void heightMap(World world, ActivePlayer player, int radius, int i, int k) {
 		long start = System.currentTimeMillis();
 		int sStart = MiniMapWidget.scale;
@@ -230,15 +266,17 @@ class MiniMapRender extends Thread {
 		int py = player.getLocation().getBlockY();
 		
 		BufferedImage image = null;
-		if(MiniMapWidget.scale == 0)
+		if(MiniMapWidget.scale <= 0)
 		image = new BufferedImage(radius*2*16, radius*2*16, BufferedImage.TYPE_INT_RGB);
 		else
 		image = new BufferedImage(radius*2, radius*2, BufferedImage.TYPE_INT_RGB);
 		Graphics gr = image.getGraphics();
+		gr.setColor(transparent);
+		
 		for (int x = -radius; x < radius; x++)
 			for (int z = -radius; z < radius; z++) {
 				
-				if(System.currentTimeMillis()-start > 500+MiniMapWidget.scale*4 || MiniMapWidget.scale != sStart) {
+				if(System.currentTimeMillis()-start > 1000+MiniMapWidget.scale*4 || MiniMapWidget.scale != sStart) {
 					gr.dispose();
 					// TODO Add pathing back
 					//writePath(pairs);
@@ -263,12 +301,21 @@ class MiniMapRender extends Thread {
 				
 				y = getHighestBlockY(world, tx, tz);
 				id = world.getBlockTypeIdAt(tx, y, tz);
-				dy = ((y-py) + (y-64));
+				
+				if(map.isTransparent(id)) {
+					int ly = getHighestNonTransparentBlockY(world, tx, tz);
+					for(int m=ly; m<y; m++) {
+					int nd = world.getBlockTypeIdAt(tx, m, tz);
+					BufferedImage tile = map.getTexture(nd);
+					gr.drawImage(tile, (x+radius)*16, (z+radius)*16, null);
+					}
+				}
+				dy = ((y-py)*2 + (y-64));
 				diff = getRelativeShading(world, tx, y, tz)*15;
 				
 				dy = dy+diff+world.getBlockAt(tx, y+1, tz).getLightLevel()*5;
 				
-				if(MiniMapWidget.scale == 0) {
+				if(MiniMapWidget.scale <= 0) {
 				
 				BufferedImage tile = map.getTexture(id);
 				
@@ -319,6 +366,12 @@ class MiniMapRender extends Thread {
 				}
 			}
 		gr.dispose();
+		try {
+			File file = new File("test.png");
+			ImageIO.write(image, "png", file);
+		} catch (Exception e) {
+			
+		}
 		// TODO Add pathing back
 		//writePath(pairs);
 		gr = this.image.getGraphics();

@@ -33,6 +33,20 @@ public class TextureMapper {
 		}
 	}
 	
+	public boolean isTransparent(int id) {
+		if(id == 8)
+			return true;
+		if(id == 9)
+			return true;
+		if(id == 18)
+			return true;
+		if(id == 20)
+			return true;
+		if(id == 52)
+			return true;
+		return false;
+	}
+	
 	public TextureMapper() {
 		terrain = loadTerrain();
 		setupPairs();
@@ -47,7 +61,6 @@ public class TextureMapper {
 		// TODO flesh out fully
 		Integer[] st;
 		
-		pairs.put(0, newArray(7, 10));
 		// Stone texture
 		st = newArray(1, 0);
 		pairs.put(1, st);
@@ -58,7 +71,7 @@ public class TextureMapper {
 		pairs.put(69, st);
 		pairs.put(77, st);
 		
-		pairs.put(2, newArray(3, 13));
+		pairs.put(2, newArray(8, 2));
 		pairs.put(3, newArray(2, 0));
 		pairs.put(4, newArray(0, 1));
 		// Wood texture
@@ -84,7 +97,7 @@ public class TextureMapper {
 		pairs.put(15, newArray(2, 1));
 		pairs.put(16, newArray(2, 2));
 		pairs.put(17, newArray(5, 1));
-		pairs.put(18, newArray(4, 13));
+		pairs.put(18, newArray(4, 3));
 		pairs.put(19, newArray(0, 3));
 		pairs.put(20, newArray(1, 3));
 		pairs.put(21, newArray(0, 10));
@@ -100,7 +113,7 @@ public class TextureMapper {
 		
 		pairs.put(29, newArray(10, 6));
 		pairs.put(30, newArray(11, 0));
-		pairs.put(31, newArray(3, 13));
+		pairs.put(31, newArray(8, 2));
 		pairs.put(32, newArray(7, 3));
 		pairs.put(33, newArray(11, 6));
 		pairs.put(34, newArray(11, 6));
@@ -177,7 +190,10 @@ public class TextureMapper {
 			return colors.get(id);
 		
 		BufferedImage img = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
-		img.getGraphics().drawImage(getTexture(id), 0, 0, 1, 1, null);
+		Graphics gr = img.getGraphics();
+		gr.setColor(MiniMapRender.transparent);
+		gr.drawImage(getTexture(id), 0, 0, 1, 1, null);
+		gr.dispose();
 		Color color = new Color(img.getRGB(0, 0));
 		colors.put(id, color);
 		return color;
@@ -190,10 +206,23 @@ public class TextureMapper {
 		int x1 = x0+16;
 		int y1 = y0+16;
 		BufferedImage img = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
+		
+		if(id == 0 || id == 20)
+			return img;
+		
 		Graphics gr = img.getGraphics();
+		gr.setColor(MiniMapRender.transparent);
 		gr.drawImage(terrain, 0, 0, 16, 16, x0, y0, x1, y1, null);
 		gr.dispose();
-		
+		if(id == 2 || id == 18 || id ==31) {
+		for(int x=0; x<16; x++)
+			for(int y=0; y<16; y++) {
+			Color color = new Color(img.getRGB(x, y));
+			color = new Color(0, color.getGreen(), 0, color.getAlpha());
+			img.setRGB(x, y, color.getRGB());
+			color = null;
+			}
+		}
 		return img;
 	}
 	

@@ -46,15 +46,18 @@ public class MiniMapWidget extends GenericWidget {
 			if(keyDown == false) {
 				if(scale == 0) {
 				scale = 64;
-				getParent().getClient().getActivePlayer().sendMessage(ChatColor.BLUE+"** ZOOM LEVEL 1");
+				getParent().getClient().getActivePlayer().sendMessage(ChatColor.BLUE+"** ZOOM LEVEL 2");
 				}
 				else if(scale == 64) {
 				scale = 128;
-				getParent().getClient().getActivePlayer().sendMessage(ChatColor.BLUE+"** ZOOM LEVEL 2");
+				getParent().getClient().getActivePlayer().sendMessage(ChatColor.BLUE+"** ZOOM LEVEL 3");
 				}
 				else if(scale == 128) {
-				scale = 0;
+				scale = -24;
 				getParent().getClient().getActivePlayer().sendMessage(ChatColor.BLUE+"** ZOOM LEVEL 0");
+				} else if(scale == -24) {
+				scale = 0;
+				getParent().getClient().getActivePlayer().sendMessage(ChatColor.BLUE+"** ZOOM LEVEL 1");
 				}
 			keyDown = true;
 			}
