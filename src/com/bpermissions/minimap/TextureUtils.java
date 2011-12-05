@@ -99,7 +99,7 @@ public class TextureUtils {
 	 * @param buff
 	 * @return ByteBuffer (buff)
 	 */
-	public static ByteBuffer render(MiniMap miniMap, ByteBuffer buff) {
+	public static ByteBuffer render(MiniMap miniMap, ByteBuffer buff, int width) {
 		// Is the render up to date
 		if (buff == null) {
 			// First render() ?
@@ -123,7 +123,6 @@ public class TextureUtils {
 		float rot = ((float) Spoutcraft.getActivePlayer().getLocation().getYaw() + 180) % 360;
 		// Attempt to rotate?
 		
-		int width = 100;
 		int center = (width)/2;
 		
 		GL11.glTranslated(center, center, 0);

@@ -45,32 +45,12 @@ public class MiniMapWidget extends GenericWidget {
 		if(Keyboard.isKeyDown(Keyboard.KEY_M)) {
 			if(keyDown == false) {
 				if(scale == 0) {
-				scale = 16;
+				scale = 64;
 				getParent().getClient().getActivePlayer().sendMessage(ChatColor.BLUE+"** ZOOM LEVEL 1");
 				}
-				else if(scale == 16) {
-				scale = 32;
-				getParent().getClient().getActivePlayer().sendMessage(ChatColor.BLUE+"** ZOOM LEVEL 2");
-				}
-				else if(scale == 32) {
-				scale = 48;
-				getParent().getClient().getActivePlayer().sendMessage(ChatColor.BLUE+"** ZOOM LEVEL 3");
-				}
-				else if(scale == 48) {
-				scale = 64;
-				getParent().getClient().getActivePlayer().sendMessage(ChatColor.BLUE+"** ZOOM LEVEL 4");
-				}
 				else if(scale == 64) {
-				scale = 80;
-				getParent().getClient().getActivePlayer().sendMessage(ChatColor.BLUE+"** ZOOM LEVEL 5");
-				}
-				else if(scale == 80) {
-				scale = 96;
-				getParent().getClient().getActivePlayer().sendMessage(ChatColor.BLUE+"** ZOOM LEVEL 6");
-				}
-				else if(scale == 96) {
 				scale = 128;
-				getParent().getClient().getActivePlayer().sendMessage(ChatColor.BLUE+"** ZOOM LEVEL 7");
+				getParent().getClient().getActivePlayer().sendMessage(ChatColor.BLUE+"** ZOOM LEVEL 2");
 				}
 				else if(scale == 128) {
 				scale = 0;
@@ -88,7 +68,7 @@ public class MiniMapWidget extends GenericWidget {
 		// Code to draw the face of the player
 		//drawPlayer();
 		// Code moved to textureUtils
-		buff = TextureUtils.render(miniMap, buff);
+		buff = TextureUtils.render(miniMap, buff, (int) (this.getScreen().getWidth()/5));
 		
 		// Global untranslation
 		GL11.glTranslated(-tx, -ty, 0);

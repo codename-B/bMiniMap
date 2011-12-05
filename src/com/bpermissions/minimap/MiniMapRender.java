@@ -238,7 +238,7 @@ class MiniMapRender extends Thread {
 		for (int x = -radius; x < radius; x++)
 			for (int z = -radius; z < radius; z++) {
 				
-				if(System.currentTimeMillis()-start > 500 || MiniMapWidget.scale != sStart) {
+				if(System.currentTimeMillis()-start > 500+MiniMapWidget.scale*4 || MiniMapWidget.scale != sStart) {
 					gr.dispose();
 					// TODO Add pathing back
 					//writePath(pairs);
