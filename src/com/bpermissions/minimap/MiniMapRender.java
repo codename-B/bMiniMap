@@ -3,15 +3,11 @@ package com.bpermissions.minimap;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
-import java.io.File;
+import java.awt.image.WritableRaster;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
-import javax.imageio.ImageIO;
-
 import org.spoutcraft.spoutcraftapi.World;
 import org.spoutcraft.spoutcraftapi.World.Environment;
 import org.spoutcraft.spoutcraftapi.entity.ActivePlayer;
@@ -25,8 +21,7 @@ class MiniMapRender extends Thread {
 	public static MiniMapRender single;
 
 	private final MiniMap parent;
-	public final Map<Integer, Color> colors;
-	public final Map<Integer, List<Color>> multiColors;
+
 	// Yes, it's the coordinates image!
 	
 	public final Color transparent = new Color(255, 255, 255 ,0);
@@ -34,8 +29,10 @@ class MiniMapRender extends Thread {
 	public LinkedList<MiniMapLocation> locList = new LinkedList<MiniMapLocation>();
 	
 	private BufferedImage image;
-
+	
 	public ByteBuffer buffer;
+	
+	TextureMapper map = new TextureMapper();
 
 	/**
 	 * MiniMapRender runs the miniMap render async
@@ -44,9 +41,6 @@ class MiniMapRender extends Thread {
 	 */
 	MiniMapRender(MiniMap parent) {
 		this.parent = parent;
-		colors = new HashMap<Integer, Color>();
-		multiColors = new HashMap<Integer, List<Color>>();
-		setDefaultColors();
 		image = parent.getImage();
 	}
 	
@@ -102,8 +96,6 @@ class MiniMapRender extends Thread {
 	 */
 	public void run() {
 		while (parent.getParent().isEnabled) {
-			image = parent.getImage();
-
 			try {
 				image = parent.getImage();
 				ActivePlayer player = parent.getParent().getClient()
@@ -120,8 +112,9 @@ class MiniMapRender extends Thread {
 				if(locList.size() > 128)
 					locList.remove(0);
 				
-				int zoom = 128 + MiniMapWidget.scale;
-				
+				int zoom = MiniMapWidget.scale;
+				if(zoom<2)
+					zoom = 2;
 				if(getHighestStoneY(world, i, k) > j && j < 90) {
 					this.caveMap(world, player, zoom, i, k);
 				} else if(world.getEnvironment() == Environment.NETHER) {
@@ -146,11 +139,7 @@ class MiniMapRender extends Thread {
 						image.setRGB(x, z, transparent.getRGB());
 					}
 				// Then finally send it to the buffer!
-				buffer = TextureUtils.convertImageData(image, 128);
-				// This is debug code for my test environment but shouldn't affect most people, and too bad if it does ;)
-				File test = new File("test.png");
-				if (test.exists())
-					ImageIO.write(image, "png", test);
+				buffer = TextureUtils.convertImageData(image, 256);
 
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -192,6 +181,7 @@ class MiniMapRender extends Thread {
 		int tx, tz, ty;
 		Map<Integer, Integer[]> pairs = new HashMap<Integer, Integer[]>();
 		BufferedImage image = new BufferedImage(radius*2, radius*2, BufferedImage.TYPE_INT_ARGB);
+		
 		for (int x = -radius; x < radius; x++)
 			for (int z = -radius; z < radius; z++) {
 				tx = (int) (i + x);
@@ -225,11 +215,11 @@ class MiniMapRender extends Thread {
 		 */
 		int tx, tz;
 		int y, id, dy, diff;
-		Color color;
 		Map<Integer, Integer[]> pairs = new HashMap<Integer, Integer[]>();
 		int py = player.getLocation().getBlockY();
 		
-		BufferedImage image = new BufferedImage(radius*2, radius*2, BufferedImage.TYPE_INT_ARGB);
+		BufferedImage image = new BufferedImage(radius*2*16, radius*2*16, BufferedImage.TYPE_INT_RGB);
+		
 		for (int x = -radius; x < radius; x++)
 			for (int z = -radius; z < radius; z++) {
 				tx = (int) (i + x);
@@ -244,38 +234,58 @@ class MiniMapRender extends Thread {
 				
 				y = getHighestBlockY(world, tx, tz);
 				id = world.getBlockTypeIdAt(tx, y, tz);
-				dy = ((y-py)*2 + (y-64)*2);
+				dy = ((y-py) + (y-64));
 				diff = getRelativeShading(world, tx, y, tz)*25;
 				
-				dy = dy-diff;
-				color = colors.get(id);
-				if (color == null)
-					color = new Color(255, 255, 255);
-				// Height shading?
-					int r = color.getRed() + dy;
-					if (r > 255)
+				dy = dy+diff;
+				
+				Graphics gr = image.getGraphics();
+				BufferedImage tile = map.getTexture(id);
+				
+				for(int m=0; m<16; m++)
+					for(int n=0; n<16; n++) {
+						Color color = new Color(tile.getRGB(m, n));
+						int r = color.getRed() + dy;
+						if (r > 255)
 						r = 255;
-					if (r < 0)
+						if (r < 0)
 						r = 0;
-					int g = (color.getGreen() + dy);
-					if (g > 255)
+						int g = (color.getGreen() + dy);
+						if (g > 255)
 						g = 255;
-					if (g < 0)
+						if (g < 0)
 						g = 0;
-					int b = color.getBlue() + dy;
-					if (b > 255)
+						int b = color.getBlue() + dy;
+						if (b > 255)
 						b = 255;
-					if (b < 0)
+						if (b < 0)
 						b = 0;
-					color = new Color(r, g, b);
-				image.setRGB(x + radius, z + radius,
-						color.getRGB());
+						color = new Color(r, g, b);
+						tile.setRGB(m, n, color.getRGB());
+						color = null;
+				}
+				gr.drawImage(tile, (x+radius)*16, (z+radius)*16, null);
+				gr.dispose();
 			}
-		writePath(pairs);
+		
+		// TODO Add pathing back
+		//writePath(pairs);
 		Graphics gr = this.image.getGraphics();
 		gr.drawImage(image, 0, 0, 256, 256, null);
 		gr.dispose();
+		// Can we help stop the memory leak here?
+		image.flush();
 		image = null;
+	}
+	public BufferedImage test(int shad) {
+	int[] shading = {0, 0, 0, shad};
+	BufferedImage im = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
+	WritableRaster rs = im.getRaster();
+	for(int m=0; m<16; m++)
+		for(int n=0; n<16; n++)
+			rs.setPixel(m, n, shading);
+	im.setData(rs);
+	return im;
 	}
 	
 	public void writePath(Map<Integer, Integer[]> pairs) {
@@ -316,125 +326,6 @@ class MiniMapRender extends Thread {
 	 */
 	public MiniMap getParent() {
 		return parent;
-	}
-
-	/**
-	 * Yay HashMaps!
-	 */
-	private void setDefaultColors() {
-		Color c;
-		colors.put(0, new Color(0, 0, 0));
-		colors.put(1, new Color(139, 137, 137));
-		c = new Color(15, 188, 0);
-		colors.put(2, c);
-		colors.put(31, c);
-		colors.put(37, c);
-		colors.put(38, c);
-		colors.put(39, c);
-		colors.put(40, c);
-		colors.put(59, c);
-		colors.put(103, c);
-		colors.put(104, c);
-		colors.put(105, c);
-		colors.put(106, c);
-		c = new Color(139, 69, 19);
-		colors.put(3, c);
-		colors.put(60, c);
-		colors.put(88, c);
-		colors.put(4, new Color(205, 197, 191));
-		c = new Color(148, 124, 80);
-		colors.put(5, c);
-		colors.put(32, c);
-		colors.put(53, c);
-		colors.put(54, c);
-		colors.put(58, c);
-		colors.put(85, c);
-		colors.put(86, c);
-		colors.put(90, c);
-		colors.put(96, c);
-		colors.put(99, c);
-		colors.put(100, c);
-		colors.put(107, c);
-		colors.put(6, new Color(139, 69, 19));
-		colors.put(7, new Color(52, 52, 52));
-		c = new Color(20, 20, 200);
-		colors.put(8, c);
-		colors.put(9, c);
-		c = new Color(252, 87, 0);
-		colors.put(10, c);
-		colors.put(11, c);
-		colors.put(51, c);
-		colors.put(12, new Color(134, 114, 94));
-		c = new Color(144, 144, 144);
-		colors.put(13, c);
-		colors.put(14, c);
-		colors.put(15, c);
-		colors.put(16, c);
-		colors.put(21, c);
-		colors.put(56, c);
-		colors.put(61, c);
-		colors.put(62, c);
-		colors.put(67, c);
-		colors.put(73, c);
-		colors.put(74, c);
-		c = new Color(160, 82, 45);
-		colors.put(17, c);
-		colors.put(81, c);
-		colors.put(83, c);
-		colors.put(18, new Color(35, 100, 40));
-		c = new Color(255, 255, 255);
-		colors.put(19, c);
-		colors.put(20, c);
-		colors.put(22, new Color(26, 70, 161));
-		colors.put(24, new Color(214, 207, 154));
-		colors.put(31, new Color(20, 140, 0));
-		colors.put(41, new Color(255, 251, 86));
-		colors.put(42, new Color(240, 240, 240));
-		c = new Color(164, 164, 164);
-		colors.put(43, c);
-		colors.put(44, c);
-		c = new Color(157, 77, 55);
-		colors.put(45, c);
-		colors.put(46, c);
-		colors.put(47, c);
-		colors.put(48, new Color(33, 76, 33));
-		colors.put(49, new Color(15, 15, 24));
-		c = new Color(255, 255, 255);
-		colors.put(50, c);
-		colors.put(51, c);
-		colors.put(52, c);
-		colors.put(55, new Color(252, 87, 0));
-		colors.put(57, new Color(156, 234, 231));
-		colors.put(79, new Color(90, 134, 191));
-		colors.put(83, new Color(20, 140, 0));
-		colors.put(86, new Color(255, 140, 0));
-		colors.put(87, new Color(128, 8, 8));
-		colors.put(89, new Color(150, 110, 48));
-		colors.put(91, new Color(255, 140, 0));
-		List<Color> variants;
-		variants = new ArrayList<Color>();
-		variants.add(new Color(34, 100, 34));
-		variants.add(new Color(40, 72, 0));
-		variants.add(new Color(20, 105, 36));
-		multiColors.put(18, variants);
-		variants = new ArrayList<Color>();
-		variants.add(new Color(241, 241, 241));
-		variants.add(new Color(235, 129, 56));
-		variants.add(new Color(185, 57, 197));
-		variants.add(new Color(126, 156, 219));
-		variants.add(new Color(212, 187, 32));
-		variants.add(new Color(62, 198, 49));
-		variants.add(new Color(221, 141, 163));
-		variants.add(new Color(63, 63, 63));
-		variants.add(new Color(173, 180, 180));
-		variants.add(new Color(31, 96, 123));
-		variants.add(new Color(135, 56, 205));
-		variants.add(new Color(35, 46, 141));
-		variants.add(new Color(82, 49, 27));
-		variants.add(new Color(54, 74, 24));
-		variants.add(new Color(167, 45, 41));
-		variants.add(new Color(10, 10, 10));
-		multiColors.put(35, variants);
 	}
 	
 	/*

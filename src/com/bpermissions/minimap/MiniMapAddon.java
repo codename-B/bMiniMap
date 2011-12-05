@@ -50,13 +50,13 @@ public class MiniMapAddon extends JavaAddon {
 
 	@Override
 	public void onEnable() {
+		try {
 		TextureUtils.getInstance("minimap").initialUpload(256);
 		loadOverlay();
 		isEnabled = true;
 		System.out.println("MiniMap enabled!");
 		// This is to help me track down bugs
 		// onEnable() doesn't print a full stacktrace on it's own
-		try {
 			widget = new MiniMapWidget(this);
 			label = new MiniMapLabel(this);
 			this.getClient().getActivePlayer().getMainScreen()
