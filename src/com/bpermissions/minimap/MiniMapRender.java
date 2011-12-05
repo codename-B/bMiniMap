@@ -218,7 +218,7 @@ class MiniMapRender extends Thread {
 		Map<Integer, Integer[]> pairs = new HashMap<Integer, Integer[]>();
 		int py = player.getLocation().getBlockY();
 		
-		BufferedImage image = new BufferedImage(radius*2*8, radius*2*8, BufferedImage.TYPE_INT_RGB);
+		BufferedImage image = new BufferedImage(radius*2*16, radius*2*16, BufferedImage.TYPE_INT_RGB);
 		
 		for (int x = -radius; x < radius; x++)
 			for (int z = -radius; z < radius; z++) {
@@ -264,7 +264,7 @@ class MiniMapRender extends Thread {
 						tile.setRGB(m, n, color.getRGB());
 						color = null;
 				}
-				gr.drawImage(tile, (x+radius)*8, (z+radius)*8, null);
+				gr.drawImage(tile, (x+radius)*16, (z+radius)*16, null);
 				gr.dispose();
 			}
 		

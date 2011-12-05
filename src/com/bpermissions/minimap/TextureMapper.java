@@ -172,11 +172,11 @@ public class TextureMapper {
 	
 	public BufferedImage getTexture(int id) {
 		Integer[] pair = getPair(id);
-		int x0 = pair[0]*8;
-		int y0 = pair[1]*8;
+		int x0 = pair[0]*16;
+		int y0 = pair[1]*16;
 		int x1 = x0+8;
 		int y1 = y0+8;
-		BufferedImage img = new BufferedImage(8, 8, BufferedImage.TYPE_INT_ARGB);
+		BufferedImage img = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
 		Graphics gr = img.getGraphics();
 		gr.drawImage(terrain, 0, 0, 16, 16, x0, y0, x1, y1, null);
 		gr.dispose();
