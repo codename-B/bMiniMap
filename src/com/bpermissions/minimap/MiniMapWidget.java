@@ -2,9 +2,7 @@ package com.bpermissions.minimap;
 
 import java.nio.ByteBuffer;
 
-import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
-import org.spoutcraft.spoutcraftapi.ChatColor;
 import org.spoutcraft.spoutcraftapi.addon.java.JavaAddon;
 import org.spoutcraft.spoutcraftapi.gui.GenericWidget;
 import org.spoutcraft.spoutcraftapi.gui.WidgetType;
@@ -29,7 +27,6 @@ public class MiniMapWidget extends GenericWidget {
 		return WidgetType.Texture;
 	}
 	
-	boolean keyDown = false;
 	@Override
 	/**
 	 * This is where all the fun stuff happens, we check to see
@@ -41,30 +38,7 @@ public class MiniMapWidget extends GenericWidget {
 	 * We then draw a quad :)
 	 */
 	public void render() {
-		Keyboard.poll();
-		if(Keyboard.isKeyDown(Keyboard.KEY_M)) {
-			if(keyDown == false) {
-				if(scale == 0) {
-				scale = 64;
-				getParent().getClient().getActivePlayer().sendMessage(ChatColor.BLUE+"** ZOOM LEVEL 2");
-				}
-				else if(scale == 64) {
-				scale = 128;
-				getParent().getClient().getActivePlayer().sendMessage(ChatColor.BLUE+"** ZOOM LEVEL 3");
-				}
-				else if(scale == 128) {
-				scale = -24;
-				getParent().getClient().getActivePlayer().sendMessage(ChatColor.BLUE+"** ZOOM LEVEL 0");
-				} else if(scale == -24) {
-				scale = 0;
-				getParent().getClient().getActivePlayer().sendMessage(ChatColor.BLUE+"** ZOOM LEVEL 1");
-				}
-			keyDown = true;
-			}
-		} else {
-			keyDown = false;
-		}
-				tx = this.getScreen().getWidth()-100;
+		tx = this.getScreen().getWidth()-100;
 		// Global translation
 		GL11.glTranslated(tx, ty, 0);
 		
