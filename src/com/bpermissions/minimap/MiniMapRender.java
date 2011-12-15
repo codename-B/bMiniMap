@@ -93,7 +93,7 @@ class MiniMapRender extends Thread {
 	 * @return y
 	 */
 	public int getHighestBlockY(World world, int x, int z) {
-		for (int i = 127; i >= 0; i--) {
+		for (int i = world.getMaxHeight() - 1; i >= 0; i--) {
 			int id = world.getBlockTypeIdAt(x, i, z);
 			if (id > 0)
 				return i;
@@ -102,7 +102,7 @@ class MiniMapRender extends Thread {
 	}
 	
 	public int getHighestNonTransparentBlockY(World world, int x, int z) {
-		for (int i = 127; i >= 0; i--) {
+		for (int i = world.getMaxHeight() - 1; i >= 0; i--) {
 			int id = world.getBlockTypeIdAt(x, i, z);
 			if (id > 0 && !map.isTransparent(id))
 				return i;
@@ -118,7 +118,7 @@ class MiniMapRender extends Thread {
 	 * @return y
 	 */
 	public int getHighestStoneY(World world, int x, int z) {
-		for (int i = 127; i >= 0; i--) {
+		for (int i = world.getMaxHeight() - 1; i >= 0; i--) {
 			int id = world.getBlockTypeIdAt(x, i, z);
 			if (id == 1)
 				return i;
@@ -128,7 +128,7 @@ class MiniMapRender extends Thread {
 
 	@Override
 	/**
-	 * Asyncynously updates the minimap
+	 * Asynchronously updates the minimap
 	 */
 	public void run() {
 		while (parent.getParent().isEnabled) {

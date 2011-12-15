@@ -8,8 +8,10 @@ import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
 import javax.imageio.ImageIO;
+import org.lwjgl.input.Keyboard;
 
 import org.spoutcraft.spoutcraftapi.addon.java.JavaAddon;
+import org.spoutcraft.spoutcraftapi.keyboard.KeyBinding;
 
 public class MiniMapAddon extends JavaAddon {
 
@@ -17,6 +19,7 @@ public class MiniMapAddon extends JavaAddon {
 	MiniMapWidget widget;
 	public boolean isEnabled = false;
 	MiniMapLabel label;
+	KeyBinding zoomKeyBind;
 
 	public void loadOverlay() {
 		try {
@@ -46,6 +49,7 @@ public class MiniMapAddon extends JavaAddon {
 	public void onDisable() {
 		System.out.println("MiniMap disabled!");
 		isEnabled = false;
+		this.getClient().getKeyBindingManager().registerControl(zoomKeyBind);
 	}
 
 	@Override
@@ -63,6 +67,9 @@ public class MiniMapAddon extends JavaAddon {
 					.attachWidget(this, widget);
 			this.getClient().getActivePlayer().getMainScreen()
 					.attachWidget(this, label);
+			zoomKeyBind = new KeyBinding(Keyboard.KEY_M, this, "Zoom level", "Changes through the available zoom levels for the minimap.");
+			zoomKeyBind.setDelegate(new MiniMapZoomKeyDelegate(this));
+			this.getClient().getKeyBindingManager().registerControl(zoomKeyBind);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
