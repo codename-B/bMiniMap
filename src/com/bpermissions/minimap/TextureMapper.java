@@ -7,10 +7,12 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import javax.imageio.ImageIO;
+
+import org.spoutcraft.spoutcraftapi.Spoutcraft;
 
 public class TextureMapper {
 
@@ -238,19 +240,25 @@ public class TextureMapper {
 	
 	public BufferedImage loadTerrain() {
 		try {
-			// Load the image from the jar? :O
+			// Load the terrain image from the current texture pack
 			
-			// Instead of using a hardcoded .jar file name, get whatever .jar contains this addon's code
-			//File jarFile = new File(Spoutcraft.getAddonFolder(), "bMiniMap.jar");	
-			File jarFile = new File(MiniMap.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
+			File zipLocation = Spoutcraft.getSelectedTexturePackZip();
+			ZipFile textureZip = new ZipFile(zipLocation);
 			
-			JarFile jar = new JarFile(jarFile);
-			ZipEntry ze = jar.getEntry("terrain.png");
-			InputStream is = jar.getInputStream(ze);
+			//If the file isn't there (as in when we are on default, load from the jar)
+			if(zipLocation.getName() == "Default") {
+				File jarFile = new File(MiniMap.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
+				textureZip = new ZipFile(jarFile);
+			}
+			
+			ZipEntry zipEntry = textureZip.getEntry("terrain.png");
+			InputStream is = textureZip.getInputStream(zipEntry);
 			BufferedImage bmg = ImageIO.read(is);
+			
 			// Don't forget cleanup!
 			is.close();
-			jar.close();
+			textureZip.close();
+			
 			return bmg;
 			} catch (Exception e) {
 				e.printStackTrace();
