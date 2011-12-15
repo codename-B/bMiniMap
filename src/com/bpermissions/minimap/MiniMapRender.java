@@ -152,14 +152,14 @@ class MiniMapRender extends Thread {
 				//	locList.remove(0);
 				
 				int zoom = 32+MiniMapWidget.scale;
-				if(getHighestStoneY(world, i, k) > j && j < 90) {
-					this.caveMap(world, player, zoom, i, k);
-				} else if(world.getEnvironment() == Environment.NETHER) {
-					this.caveMap(world, player, zoom, i, k);
-				}	
-				else {
+				//if(getHighestStoneY(world, i, k) > j && j < 90) {
+				//	this.caveMap(world, player, zoom, i, k);
+				//} else if(world.getEnvironment() == Environment.NETHER) {
+				//	this.caveMap(world, player, zoom, i, k);
+				//}	
+				//else {
 					this.heightMap(world, player, zoom, i, k);
-				}
+				//}
 				
 				/*
 				 * Cut image into a circle
