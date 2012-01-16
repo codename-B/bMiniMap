@@ -24,7 +24,7 @@ public class MiniMapLabel extends GenericLabel {
 	
 	@Override
 	public void render() {
-		int x = (int) this.getScreen().getWidth()-100;
+		int x = (int) this.getScreen().getWidth()-110;
 		this.setX(x).setY((int) (this.getScreen().getWidth()/5));
 		super.render();
 	}
