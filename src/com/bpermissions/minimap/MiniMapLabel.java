@@ -8,9 +8,6 @@ public class MiniMapLabel extends GenericLabel {
 	
 	public MiniMapLabel(MiniMapAddon parent) {
 		this.parent = parent;
-		//this.setTextColor(new Color(255, 255, 255, 0));
-		//You had alpha at max, also this currently is an odd
-		//black, so I left it white.
 	}
 	
 	@Override

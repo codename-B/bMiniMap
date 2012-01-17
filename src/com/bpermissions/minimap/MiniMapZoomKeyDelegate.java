@@ -31,7 +31,7 @@ public class MiniMapZoomKeyDelegate extends BindingExecutionDelegate {
 			break;
 		case 2:
 			MiniMapWidget.scale = 0;
-			zoomMessage(3);
+			zoomMessage(0);
 			break;
 		}
 	}
