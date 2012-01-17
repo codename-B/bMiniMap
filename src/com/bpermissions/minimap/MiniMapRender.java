@@ -196,7 +196,10 @@ class MiniMapRender extends Thread {
 				
 				dy = this.getShading(y, world)*4;
 				
-				Color color = new Color(map.getRGB(id, x, z));
+				int sx = x;
+				int sz = z;
+				
+				Color color = new Color(map.getRGB(id, sx, sz));
 				
 				int r, g, b;
 				// rgb set
