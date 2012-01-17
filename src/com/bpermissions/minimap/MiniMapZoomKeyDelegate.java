@@ -21,22 +21,18 @@ public class MiniMapZoomKeyDelegate extends BindingExecutionDelegate {
 	@Override
 	public void onKeyPress(int i, KeyBinding kb) {
 		switch (MiniMapWidget.scale) {
-			case 1:
-				MiniMapWidget.scale = 2;
-				zoomMessage(2);
-				break;
-			case 2:
-				MiniMapWidget.scale = 3;
-				zoomMessage(3);
-				break;
-			case 3:
-				MiniMapWidget.scale = 0;
-				zoomMessage(0);
-				break;
-			case 0:
-				MiniMapWidget.scale = 1;
-				zoomMessage(1);
-				break;
+		case 0:
+			MiniMapWidget.scale = 1;
+			zoomMessage(1);
+			break;	
+		case 1:
+			MiniMapWidget.scale = 2;
+			zoomMessage(2);
+			break;
+		case 2:
+			MiniMapWidget.scale = 0;
+			zoomMessage(3);
+			break;
 		}
 	}
 

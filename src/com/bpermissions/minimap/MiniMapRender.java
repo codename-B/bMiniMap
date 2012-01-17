@@ -177,8 +177,8 @@ class MiniMapRender extends Thread {
 					return;
 				}
 				// Use the scale to scale RELATIVELY
-				tx = (int) (i + (x*(scale+1)));
-				tz = (int) (k + (z*(scale+1)));
+				tx = (int) (i + (x/(3-scale)));
+				tz = (int) (k + (z/(3-scale)));
 				
 				int yid[] = getHighestBlockYandID(world, tx, tz);
 				
@@ -196,7 +196,7 @@ class MiniMapRender extends Thread {
 				
 				dy = this.getShading(y, world)*4;
 				
-				Color color = new Color(map.getRGB(id, tx, tz));
+				Color color = new Color(map.getRGB(id, x, z));
 				
 				int r, g, b;
 				// rgb set
