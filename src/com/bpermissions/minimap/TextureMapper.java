@@ -266,7 +266,7 @@ public class TextureMapper {
 			ZipFile textureZip;
 			
 			//If the file isn't there (as in when we are on default, load from the jar)
-			if(zipLocation.getName().equalsIgnoreCase("Default")) {
+			if(zipLocation.getName().equalsIgnoreCase("default")) {
 				File jarFile = new File(MiniMap.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
 				textureZip = new ZipFile(jarFile);
 			} else {
