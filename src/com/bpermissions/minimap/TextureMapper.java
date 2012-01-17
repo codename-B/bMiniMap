@@ -35,20 +35,6 @@ public class TextureMapper {
 		}
 	}
 	
-	public boolean isTransparent(int id) {
-		if(id == 8)
-			return true;
-		if(id == 9)
-			return true;
-		if(id == 18)
-			return true;
-		if(id == 20)
-			return true;
-		if(id == 52)
-			return true;
-		return false;
-	}
-	
 	public TextureMapper() {
 		terrain = loadTerrain();
 		setupPairs();
@@ -76,6 +62,7 @@ public class TextureMapper {
 		pairs.put(2, newArray(8, 2));
 		pairs.put(3, newArray(2, 0));
 		pairs.put(4, newArray(0, 1));
+		
 		// Wood texture
 		st = newArray(4, 0);
 		pairs.put(5, st);
@@ -187,27 +174,58 @@ public class TextureMapper {
 	}
 	
 	Map<Integer, Color> colors = new HashMap<Integer, Color>();
+	
 	public Color getColor(int id) {
 		if(colors.containsKey(id))
 			return colors.get(id);
 		
-		BufferedImage img = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
-		Graphics gr = img.getGraphics();
-		gr.setColor(MiniMapRender.transparent);
-		gr.drawImage(getTexture(id), 0, 0, 1, 1, null);
-		gr.dispose();
-		Color color = new Color(img.getRGB(0, 0));
+		BufferedImage texture = getTexture(id);
+		
+		int width = texture.getWidth();
+		int height = texture.getHeight();
+		
+		int r = 0;
+		int g = 0;
+		int b = 0;
+		
+		for(int x=0; x<width; x++)
+			for(int y=0; y<height; y++) {
+				Color color = new Color(texture.getRGB(x, y));
+				r += color.getRed();
+				g += color.getGreen();
+				b += color.getBlue();	
+			}
+		
+		r = r/(width*height);
+		g = g/(width*height);
+		b = b/(width*height);
+		
+		Color color = new Color(r, g, b);
+		
 		colors.put(id, color);
 		return color;
 	}
 	
+	public int getRGB(int id, int x, int z) {
+		x = Math.abs(x) % 16;
+		z = Math.abs(z) % 16;
+		
+		return getTexture(id).getRGB(x, z);
+	}
+	// Even better than a map, we don't need anything else after all, arrays ftw
+	BufferedImage[] images = new BufferedImage[128];
+	
 	public BufferedImage getTexture(int id) {
+		
+		if(images[id] != null)
+			return images[id];
+		
 		Integer[] pair = getPair(id);
 		int x0 = pair[0]*16;
 		int y0 = pair[1]*16;
 		int x1 = x0+16;
 		int y1 = y0+16;
-		BufferedImage img = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
+		BufferedImage img = new BufferedImage(16, 16, BufferedImage.TYPE_INT_RGB);
 		
 		if(id == 0 || id == 20)
 			return img;
@@ -225,6 +243,8 @@ public class TextureMapper {
 			color = null;
 			}
 		}
+		
+		images[id] = img;
 		return img;
 	}
 	
@@ -243,12 +263,14 @@ public class TextureMapper {
 			// Load the terrain image from the current texture pack
 			
 			File zipLocation = Spoutcraft.getSelectedTexturePackZip();
-			ZipFile textureZip = new ZipFile(zipLocation);
+			ZipFile textureZip;
 			
 			//If the file isn't there (as in when we are on default, load from the jar)
 			if(zipLocation.getName() == "Default") {
 				File jarFile = new File(MiniMap.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
 				textureZip = new ZipFile(jarFile);
+			} else {
+				 textureZip = new ZipFile(zipLocation);
 			}
 			
 			ZipEntry zipEntry = textureZip.getEntry("terrain.png");
@@ -258,6 +280,13 @@ public class TextureMapper {
 			// Don't forget cleanup!
 			is.close();
 			textureZip.close();
+			
+			// Scale to 128px
+			if(bmg.getWidth() > 256) {
+				BufferedImage newImg = new BufferedImage(256, 256, BufferedImage.TYPE_INT_RGB);
+				newImg.getGraphics().drawImage(bmg, 0, 0, 256, 256, null);
+				bmg = newImg;
+			}
 			
 			return bmg;
 			} catch (Exception e) {

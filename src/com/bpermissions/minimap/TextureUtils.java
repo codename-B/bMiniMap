@@ -2,13 +2,9 @@ package com.bpermissions.minimap;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.RenderingHints;
 import java.awt.Transparency;
 import java.awt.color.ColorSpace;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.awt.image.BufferedImageOp;
 import java.awt.image.ColorModel;
 import java.awt.image.ComponentColorModel;
 import java.awt.image.DataBuffer;
@@ -28,7 +24,10 @@ import org.spoutcraft.spoutcraftapi.Spoutcraft;
 
 public class TextureUtils {
 
-	private TextureUtils() {
+	private final String key;
+	
+	private TextureUtils(String key) {
+		this.key = key;
 	}
 
 	private static Map<String, TextureUtils> instances = new HashMap<String, TextureUtils>();
@@ -44,11 +43,16 @@ public class TextureUtils {
 	 */
 	public static TextureUtils getInstance(String key) {
 		if (instances.get(key) == null) {
-			instances.put(key, new TextureUtils());
+			instances.put(key, new TextureUtils(key));
 		}
 		return instances.get(key);
 	}
 	
+	@Override
+	public String toString() {
+		return key;
+	}
+
 	@SuppressWarnings("rawtypes")
 	/**
 	 * Moved from MiniMapRender
