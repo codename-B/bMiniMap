@@ -16,12 +16,14 @@ import org.spoutcraft.spoutcraftapi.keyboard.KeyBinding;
 
 public class MiniMapAddon extends JavaAddon {
 
-	File texture = new File("addons/texture.png");
+	File texture = new File("addons/bMiniMap/texture.png");
 	MiniMapWidget widget;
 	public boolean isEnabled = false;
 	MiniMapLabel label;
 	KeyBinding zoomKeyBind;
 
+	public static BufferedImage defaultTexture = new BufferedImage(256, 256, BufferedImage.TYPE_INT_ARGB);
+	
 	public void loadOverlay() {
 		try {
 			// Optionally load the image from outside the jar
@@ -61,6 +63,12 @@ public class MiniMapAddon extends JavaAddon {
 			InputStream is = jar.getInputStream(ze);
 			BufferedImage bmg = ImageIO.read(is);
 			// Don't forget cleanup!
+			is.close();
+			// Now we read the default terrain.png
+			ze = jar.getEntry("terrain.png");
+			is = jar.getInputStream(ze);
+			defaultTexture = ImageIO.read(is);
+			// And close
 			is.close();
 			jar.close();
 			
