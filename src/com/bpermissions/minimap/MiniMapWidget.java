@@ -15,7 +15,9 @@ public class MiniMapWidget extends GenericWidget {
 	
 	public static double tx = 0;
 	public static double ty = 0;
+	
 	public static int scale = 0;
+	public static int mode = 0;
 	
 	public MiniMapWidget(MiniMapAddon parent) {
 		this.parent = parent;

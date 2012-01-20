@@ -58,6 +58,7 @@ public class TextureMapper {
 		pairs.put(62, st);
 		pairs.put(69, st);
 		pairs.put(77, st);
+		pairs.put(97, st);
 		
 		pairs.put(2, newArray(8, 2));
 		pairs.put(3, newArray(2, 0));
@@ -73,6 +74,7 @@ public class TextureMapper {
 		pairs.put(68, st);
 		pairs.put(72, st);
 		pairs.put(85, st);
+		pairs.put(96, st);
 		
 		pairs.put(6, newArray(15, 0));
 		pairs.put(7, newArray(1, 1));
@@ -94,6 +96,7 @@ public class TextureMapper {
 		pairs.put(24, newArray(0, 11));
 		pairs.put(25, newArray(10, 4));
 		pairs.put(26, newArray(6, 8));
+		
 		// Rails texture
 		st = newArray(0, 8);
 		pairs.put(27, st);
@@ -159,6 +162,29 @@ public class TextureMapper {
 		pairs.put(89, newArray(9, 6));
 		pairs.put(90, newArray(14, 4));
 		pairs.put(91, newArray(6, 6));
+		
+		// Smooth brick
+		st = newArray(6, 3);
+		pairs.put(98, st);
+		pairs.put(109, st);
+		
+		pairs.put(108, newArray(7, 0));
+		
+		// Nether brick
+		st = newArray(0, 14);
+		pairs.put(112, st);
+		pairs.put(113, st);
+		pairs.put(114, st);
+		pairs.put(115, st);
+		
+		// End stone
+		st = newArray(15, 10);
+		pairs.put(116, st);
+		pairs.put(117, st);
+		pairs.put(118, st);
+		pairs.put(119, st);
+		pairs.put(120, st);
+		pairs.put(121, st);
 	}
 	
 	public Integer[] newArray(int x, int y) {

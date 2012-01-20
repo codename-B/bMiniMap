@@ -14,6 +14,8 @@ import org.spoutcraft.spoutcraftapi.Spoutcraft;
 import org.spoutcraft.spoutcraftapi.addon.java.JavaAddon;
 import org.spoutcraft.spoutcraftapi.keyboard.KeyBinding;
 
+import com.bpermissions.minimap.gui.MiniMapMenuKeyDelegate;
+
 public class MiniMapAddon extends JavaAddon {
 
 	File texture = new File("addons/bMiniMap/texture.png");
@@ -103,7 +105,7 @@ public class MiniMapAddon extends JavaAddon {
 			this.getClient().getActivePlayer().getMainScreen()
 					.attachWidget(this, label);
 			zoomKeyBind = new KeyBinding(Keyboard.KEY_M, this, "Zoom level", "Changes through the available zoom levels for the minimap.");
-			zoomKeyBind.setDelegate(new MiniMapZoomKeyDelegate(this));
+			zoomKeyBind.setDelegate(new MiniMapMenuKeyDelegate(this));
 			this.getClient().getKeyBindingManager().registerControl(zoomKeyBind);
 		} catch (Exception e) {
 			e.printStackTrace();
