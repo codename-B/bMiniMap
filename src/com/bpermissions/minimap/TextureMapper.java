@@ -17,27 +17,59 @@ import org.spoutcraft.spoutcraftapi.Spoutcraft;
 public class TextureMapper {
 
 	private BufferedImage terrain;
+	
+	private BufferedImage loadedTerrain;
+	private BufferedImage defaultTerrain;
+	
+	
 	private final Map<Integer, Integer[]> pairs = new HashMap<Integer, Integer[]>();
 	private final Integer[] blank = {0, 0};
 	
+	private static boolean useTexture = true;
 	
-	public static void main(String[] args) {
-		TextureMapper map = new TextureMapper();
-		try {
-		for(int i=0; i<10; i++) {
-			File file = new File(i+".png");
-			if(!file.exists())
-				file.createNewFile();
-				ImageIO.write(map.getTexture(i), "png", file);
+	public static boolean getUseTexture() {
+		return useTexture;
+	}
+	
+	/**
+	 * Doesn't do any reprocessing
+	 * @param use
+	 */
+	protected static void setUseTexture(boolean use) {
+		useTexture = use;
+	}
+	
+	public static void toggleUseTexture() {
+		if(useTexture) {
+			useTexture = false;
+			if(instance != null)
+				instance.terrain = instance.defaultTerrain;
 		}
-		} catch (Exception e) {
-			e.printStackTrace();
+		else {
+			useTexture = true;
+			if(instance != null)
+				instance.terrain = instance.loadedTerrain;
+		}
+		// Clear the BufferedImage cache
+		if(instance != null) {
+			for(int i=0; i<instance.images.length; i++)
+				instance.images[i] = null;
 		}
 	}
 	
+	private static TextureMapper instance = null;
+	
 	public TextureMapper() {
-		terrain = loadTerrain();
+		loadedTerrain = loadTerrain();
+		defaultTerrain = loadDefaultTerrain();
+		// Now do the logic
+		if(useTexture)
+			terrain = loadedTerrain;
+		else
+			terrain = defaultTerrain;
+		// And do the rest
 		setupPairs();
+		instance = this;
 	}
 	
 	public TextureMapper(boolean debug) {
@@ -287,7 +319,6 @@ public class TextureMapper {
 	public BufferedImage loadTerrain() {
 		try {
 			// Load the terrain image from the current texture pack
-			
 			File zipLocation = Spoutcraft.getSelectedTexturePackZip();
 			ZipFile textureZip;
 			
@@ -298,6 +329,38 @@ public class TextureMapper {
 			} else {
 				 textureZip = new ZipFile(zipLocation);
 			}
+			
+			ZipEntry zipEntry = textureZip.getEntry("terrain.png");
+			InputStream is = textureZip.getInputStream(zipEntry);
+			BufferedImage bmg = ImageIO.read(is);
+			
+			// Don't forget cleanup!
+			is.close();
+			textureZip.close();
+			
+			// Scale to 128px
+			if(bmg.getWidth() > 256) {
+				BufferedImage newImg = new BufferedImage(256, 256, BufferedImage.TYPE_INT_RGB);
+				newImg.getGraphics().drawImage(bmg, 0, 0, 256, 256, null);
+				bmg = newImg;
+			}
+			
+			return bmg;
+			} catch (Exception e) {
+				e.printStackTrace();
+				return defaultTerrain;
+			}
+	}
+	
+	public BufferedImage loadDefaultTerrain() {
+		try {
+			// Load the terrain image from the current texture pack
+			defaultTerrain = MiniMapAddon.defaultTexture;
+
+			ZipFile textureZip;
+			
+			File jarFile = new File(MiniMap.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
+			textureZip = new ZipFile(jarFile);
 			
 			ZipEntry zipEntry = textureZip.getEntry("terrain.png");
 			InputStream is = textureZip.getInputStream(zipEntry);

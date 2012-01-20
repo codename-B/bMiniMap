@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
+
 import org.spoutcraft.spoutcraftapi.World;
 import org.spoutcraft.spoutcraftapi.entity.ActivePlayer;
 
@@ -105,6 +106,20 @@ class MiniMapRender extends Thread {
 		// Return the default set
 		return yid;
 	}
+	
+	public int getDensity(World world, int x, int z) {
+		int[] yid = getHighestBlockYandID(world, x, z);
+		int y = yid[0];
+		int air = 0;
+		// Get the total # of ores in the column
+		for(int i=0; i<y; i++) {
+		int id = world.getBlockTypeIdAt(x, i, z);
+		if(id == 0)
+			air++;
+		}
+		// Then return this number
+		return (air*100)/y;
+	}
 
 	@Override
 	/**
@@ -123,7 +138,9 @@ class MiniMapRender extends Thread {
 				int i = player.getLocation().getBlockX();
 				//int j = player.getLocation().getBlockY();
 				int k = player.getLocation().getBlockZ();
-				if(MiniMapWidget.mode == 1)
+				if(MiniMapWidget.mode == 2)
+					this.densityMap(world, player, i, k);
+				else if(MiniMapWidget.mode == 1)
 					this.caveMap(world, player, i, k);
 				else
 					this.heightMap(world, player, i, k);
@@ -322,6 +339,65 @@ class MiniMapRender extends Thread {
 				b = rel(b+dy);
 				// then color in
 				image.setRGB(x+width/2, z+width/2, new Color(r, g, b).getRGB());
+			}
+		// Clean up after yourself
+		gr.dispose();
+		// Apply the image to the minimap image
+		gr = this.image.getGraphics();
+		gr.drawImage(image, 0, 0, 256, 256, null);
+		gr.dispose();
+		// Can we help stop the memory leak here?
+		image.flush();
+		image = null;
+	}
+	
+	/* 
+	 * HD minimap is the focus - we should work on transparent blocks
+	 */
+	public void densityMap(World world, ActivePlayer player, int i, int k) {
+		long start = System.currentTimeMillis();
+		int scale = MiniMapWidget.scale;
+		/*
+		 * Generate the image and apply shading 
+		 */
+		int tx, tz;
+		int dy;
+
+		int width = MiniMap.width;
+
+		BufferedImage image = null;
+
+		image = new BufferedImage(width, width, BufferedImage.TYPE_INT_RGB);
+
+		Graphics gr = image.getGraphics();
+
+		gr.setColor(transparent);
+
+		for (int x = -width/2; x < width/2; x++)
+			for (int z = -width/2; z < width/2; z++) {
+				// If the minimap render takes longer than 1000ms or the scale is changed exit the render pass
+				if(System.currentTimeMillis()-start > 1000 || MiniMapWidget.scale != scale) {
+					gr.dispose();
+					gr = this.image.getGraphics();
+					gr.drawImage(image, 0, 0, 256, 256, null);
+					gr.dispose();
+					// Can we help stop the memory leak here?
+					image.flush();
+					image = null;
+					return;
+				}
+				// Use the scale to scale RELATIVELY
+				tx = (int) (i + (x/(3-scale)));
+				tz = (int) (k + (z/(3-scale)));
+				// get the highest block y and the id of the block
+				dy = this.getDensity(world, tx, tz);
+
+				int adjust = (dy*255)/100;
+				// The color for the xz
+				Color color = new Color(adjust, adjust, adjust);
+				
+				// then color in
+				image.setRGB(x+width/2, z+width/2, color.getRGB());
 			}
 		// Clean up after yourself
 		gr.dispose();
