@@ -15,6 +15,7 @@ public class GUISelector extends GenericPopup {
 	private GenericButton close;
 	private GenericButton mode;
 	private GenericButton texture;
+	private GenericButton rotate;
 	
 	public GUISelector(MiniMapAddon addon) {
 		// Label
@@ -25,21 +26,27 @@ public class GUISelector extends GenericPopup {
 				
 				// Scale button
 				scale = new MiniMapScaleButton();
-				scale.setX(95).setY(100);
+				scale.setX(95).setY(30);
 				scale.setWidth(150).setHeight(20);
 				scale.setPriority(RenderPriority.Lowest);
 				
 				// Mode button
 				mode = new MiniMapModeButton();
-				mode.setX(95).setY(130);
+				mode.setX(95).setY(60);
 				mode.setWidth(150).setHeight(20);
 				mode.setPriority(RenderPriority.Lowest);
 				
 				// Texture button
 				texture = new MiniMapTextureButton();
-				texture.setX(95).setY(160);
+				texture.setX(95).setY(90);
 				texture.setWidth(150).setHeight(20);
 				texture.setPriority(RenderPriority.Lowest);
+				
+				// Rotate button
+				rotate = new MiniMapRotateButton();
+				rotate.setX(95).setY(120);
+				rotate.setWidth(150).setHeight(20);
+				rotate.setPriority(RenderPriority.Lowest);
 				
 				// Close button
 				close = new CloseButton(this);
@@ -50,6 +57,8 @@ public class GUISelector extends GenericPopup {
 				this.attachWidget(addon, scale);
 				this.attachWidget(addon, mode);
 				this.attachWidget(addon, texture);
+				this.attachWidget(addon, rotate);
+
 				//this.attachWidget(addon, close);
 	}
 	

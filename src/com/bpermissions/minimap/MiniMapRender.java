@@ -48,6 +48,7 @@ class MiniMapRender extends Thread {
 	 */
 	public int[] getHighestBlockYandID(World world, int x, int z) {
 		int[] yid = {0, 0};
+		try {
 		// null check since apparently this can NPE
 		if(world == null)
 			return yid;
@@ -61,6 +62,9 @@ class MiniMapRender extends Thread {
 			}
 		}
 		return yid;
+		} catch (Exception e) {
+			return yid;
+		}
 	}
 
 	/**
@@ -109,6 +113,10 @@ class MiniMapRender extends Thread {
 	
 	public int getDensity(World world, int x, int z) {
 		int[] yid = getHighestBlockYandID(world, x, z);
+		// Should help stop the lag
+		if(yid[0] == 0 && yid[1] == 0)
+			return 0;
+		
 		int y = yid[0];
 		int air = 0;
 		// Get the total # of ores in the column
@@ -375,8 +383,8 @@ class MiniMapRender extends Thread {
 
 		for (int x = -width/2; x < width/2; x++)
 			for (int z = -width/2; z < width/2; z++) {
-				// If the minimap render takes longer than 1000ms or the scale is changed exit the render pass
-				if(System.currentTimeMillis()-start > 1000 || MiniMapWidget.scale != scale) {
+				// If the minimap render takes longer than 2000ms or the scale is changed exit the render pass
+				if(System.currentTimeMillis()-start > 2000 || MiniMapWidget.scale != scale) {
 					gr.dispose();
 					gr = this.image.getGraphics();
 					gr.drawImage(image, 0, 0, 256, 256, null);

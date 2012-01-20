@@ -134,7 +134,10 @@ public class TextureUtils {
 		int center = (width)/2;
 		
 		GL11.glTranslated(center, center, 0);
-		GL11.glRotatef(-rot, 0, 0, 1);
+		// Err?
+		if(MiniMapWidget.rotate)
+			GL11.glRotatef(-rot, 0, 0, 1);
+		
 		GL11.glTranslated(-center, -center, 0);
 		
 		// ChrizC told me to
@@ -177,6 +180,10 @@ public class TextureUtils {
 		// A, a
 		GL11.glTexCoord2d(1, 0);
 		GL11.glVertex2d(width, 0);
+		
+		// Err?
+		if(!MiniMapWidget.rotate)
+			GL11.glRotatef(-rot, 0, 0, 1);
 		
 		GL11.glEnd();
 		

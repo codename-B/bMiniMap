@@ -19,6 +19,8 @@ public class MiniMapWidget extends GenericWidget {
 	public static int scale = 0;
 	public static int mode = 0;
 	
+	public static boolean rotate = false;
+	
 	public MiniMapWidget(MiniMapAddon parent) {
 		this.parent = parent;
 		miniMap = new MiniMap(parent);
@@ -42,6 +44,7 @@ public class MiniMapWidget extends GenericWidget {
 	public void render() {
 		tx = this.getScreen().getWidth()-100;
 		// Global translation
+		
 		GL11.glTranslated(tx, ty, 0);
 		
 		// Code to draw the face of the player
