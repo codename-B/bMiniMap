@@ -15,14 +15,21 @@ public class MiniMapLabel extends GenericLabel {
 		FixedLocation loc = parent.getClient().getActivePlayer().getLocation();
 		this.setText("X: " + loc.getBlockX() 
 				+ " Y: " + loc.getBlockY() 
-				+ " Z: " + loc.getBlockZ());
+				+ " Z: " + loc.getBlockZ()
+                		+ " " + (canSlimeSpawn(loc)?"S":" "));
 	}
 	
 	@Override
 	public void render() {
-		int x = (int) this.getScreen().getWidth()-100;
+		int x = (int) this.getScreen().getWidth()-110;
 		this.setX(x).setY((int) (this.getScreen().getWidth()/5));
 		super.render();
 	}
-
+	
+	private boolean canSlimeSpawn(FixedLocation loc) {
+        	int x = loc.getBlock().getChunk().getX();
+        	int z = loc.getBlock().getChunk().getZ();
+        	Random rnd = new Random(loc.getWorld().getSeed() + x * x * 4987142 + x * 5947611 + z * z * 4392871L + z * 389711 ^ 987234911L);
+        	return rnd.nextInt(10) == 0;
+    	}
 }
