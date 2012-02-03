@@ -35,26 +35,24 @@ public class TextureMapper {
 	 * Doesn't do any reprocessing
 	 * @param use
 	 */
-	protected static void setUseTexture(boolean use) {
+	protected static void setRawUseTexture(boolean use) {
 		useTexture = use;
 	}
-	
+
+	public static void setUseTexture(boolean use) {
+		if (use ^ useTexture) {
+			useTexture = use;
+			// Clear the BufferedImage cache
+			if(instance != null) {
+				instance.terrain = useTexture ? instance.loadedTerrain : instance.defaultTerrain;
+				for(int i=0; i<instance.images.length; i++)
+					instance.images[i] = null;
+			}
+		}
+	}
+
 	public static void toggleUseTexture() {
-		if(useTexture) {
-			useTexture = false;
-			if(instance != null)
-				instance.terrain = instance.defaultTerrain;
-		}
-		else {
-			useTexture = true;
-			if(instance != null)
-				instance.terrain = instance.loadedTerrain;
-		}
-		// Clear the BufferedImage cache
-		if(instance != null) {
-			for(int i=0; i<instance.images.length; i++)
-				instance.images[i] = null;
-		}
+		setUseTexture(!useTexture);
 	}
 	
 	private static TextureMapper instance = null;
