@@ -10,6 +10,7 @@ public class MiniMapRotateButton extends GenericCheckBox {
 	public MiniMapRotateButton() {
 		super("Northwards orientated");
 		setTooltip("What should rotate?");
+		setChecked(!MiniMapWidget.rotate);
 	}
 
 	@Override
