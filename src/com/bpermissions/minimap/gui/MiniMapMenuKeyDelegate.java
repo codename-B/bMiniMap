@@ -14,7 +14,7 @@ import com.bpermissions.minimap.MiniMapAddon;
 public class MiniMapMenuKeyDelegate extends BindingExecutionDelegate {
 
 	private final MiniMapAddon parent;
-	
+
 	public MiniMapMenuKeyDelegate(MiniMapAddon parent) {
 		this.parent = parent;
 	}

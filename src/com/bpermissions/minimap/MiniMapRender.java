@@ -134,7 +134,7 @@ class MiniMapRender extends Thread {
 	 * Asynchronously updates the minimap
 	 */
 	public void run() {
-		while (parent.getParent().isEnabled) {
+		while (parent.getParent().isEnabled()) {
 			long start = System.currentTimeMillis();
 			int scale = MiniMapWidget.scale;
 			try {

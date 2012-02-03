@@ -20,7 +20,6 @@ public class MiniMapAddon extends JavaAddon {
 
 	File texture = new File("addons/bMiniMap/texture.png");
 	MiniMapWidget widget;
-	public boolean isEnabled = false;
 	MiniMapLabel label;
 	KeyBinding zoomKeyBind;
 
@@ -85,7 +84,6 @@ public class MiniMapAddon extends JavaAddon {
 	@Override
 	public void onDisable() {
 		System.out.println("MiniMap disabled!");
-		isEnabled = false;
 		this.getClient().getKeyBindingManager().registerControl(zoomKeyBind);
 	}
 
@@ -94,7 +92,6 @@ public class MiniMapAddon extends JavaAddon {
 		try {
 		TextureUtils.getInstance("minimap").initialUpload(256);
 		loadOverlay();
-		isEnabled = true;
 		System.out.println("MiniMap enabled!");
 		// This is to help me track down bugs
 		// onEnable() doesn't print a full stacktrace on it's own
@@ -116,4 +113,7 @@ public class MiniMapAddon extends JavaAddon {
 		return widget;
 	}
 
+	public MiniMapLabel getLabel() {
+		return label;
+	}
 }
