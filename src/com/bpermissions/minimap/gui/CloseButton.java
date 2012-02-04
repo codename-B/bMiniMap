@@ -15,6 +15,7 @@ public class CloseButton extends GenericButton {
 	
 	@Override
 	public void onButtonClick(ButtonClickEvent event) {
+		System.out.println("ButtonClickEvent");
 		popup.close();
 	}
 

@@ -26,6 +26,7 @@ public class MiniMapScaleButton extends GenericButton {
 
 	@Override
 	public void onButtonClick(ButtonClickEvent event) {
+		System.out.println("ButtonClickEvent");
 		switch (MiniMapWidget.scale) {
 		case 0:
 			MiniMapWidget.scale = 1;

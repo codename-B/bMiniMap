@@ -16,8 +16,10 @@ public class MiniMapModeButton extends GenericComboBox {
 
 	@Override
 	public void onSelectionChanged(int i, String text) {
+		System.out.println("SelectionChanged: "+i+" - "+text);
 		if (i >= 0 && i <= 2) {
 			MiniMapWidget.mode = i;
+			System.out.println("MiniMapWidget set to mode"+MiniMapWidget.mode);
 		}
 	}
 

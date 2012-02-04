@@ -7,6 +7,7 @@ import java.nio.ByteBuffer;
 
 import org.spoutcraft.spoutcraftapi.World;
 import org.spoutcraft.spoutcraftapi.entity.ActivePlayer;
+
 /**
  * Runs the render task for the minimap and converts
  * chunk data to a BufferedImage then converts the BufferedImage to
@@ -22,25 +23,23 @@ class MiniMapRender extends Thread {
 
 	public ByteBuffer buffer;
 
-	public MiniMapCache cache = MiniMapCache.getInstance();
+	//public MiniMapCache cache = MiniMapCache.getInstance();
 
 	TextureMapper map = new TextureMapper();
 
 	/**
 	 * MiniMapRender runs the miniMap render async
-	 * 
+	 *
 	 * @param parent
 	 */
 	MiniMapRender(MiniMap parent) {
-		super("Minimap Rendering Thread");
-		this.setPriority(Thread.MIN_PRIORITY);
 		this.parent = parent;
 		image = parent.getImage();
 	}
 
 	/**
 	 * Custom get highest y method (since it's more reliable it seems)
-	 * 
+	 *
 	 * @param world
 	 * @param x
 	 * @param z
@@ -49,19 +48,19 @@ class MiniMapRender extends Thread {
 	public int[] getHighestBlockYandID(World world, int x, int z) {
 		int[] yid = {0, 0};
 		try {
-		// null check since apparently this can NPE
-		if(world == null)
-			return yid;
-		// and then calculate it otherwise
-		for (int i = world.getMaxHeight() - 1; i >= 0; i--) {
-			int id = world.getBlockTypeIdAt(x, i, z);
-			if (id > 0) {
-				yid[0] = i;
-				yid[1] = id;
+			// null check since apparently this can NPE
+			if(world == null)
 				return yid;
+			// and then calculate it otherwise
+			for (int i = world.getMaxHeight() - 1; i >= 0; i--) {
+				int id = world.getBlockTypeIdAt(x, i, z);
+				if (id > 0) {
+					yid[0] = i;
+					yid[1] = id;
+					return yid;
+				}
 			}
-		}
-		return yid;
+			return yid;
 		} catch (Exception e) {
 			return yid;
 		}
@@ -69,7 +68,7 @@ class MiniMapRender extends Thread {
 
 	/**
 	 * Custom get highest y method (since it's more reliable it seems)
-	 * 
+	 *
 	 * @param world
 	 * @param x
 	 * @param z
@@ -95,7 +94,7 @@ class MiniMapRender extends Thread {
 				yid[0] = sy-i;
 				yid[1] = id;
 				return yid;
-			}			
+			}
 		}
 		// Iterate up
 		for(int i=0; i<20; i++) {
@@ -110,80 +109,42 @@ class MiniMapRender extends Thread {
 		// Return the default set
 		return yid;
 	}
-	
+
 	public int getDensity(World world, int x, int z) {
 		int[] yid = getHighestBlockYandID(world, x, z);
 		// Should help stop the lag
 		if(yid[0] == 0 && yid[1] == 0)
 			return 0;
-		
+
 		int y = yid[0];
 		int air = 0;
 		// Get the total # of ores in the column
 		for(int i=0; i<y; i++) {
-		int id = world.getBlockTypeIdAt(x, i, z);
-		if(id == 0)
-			air++;
+			int id = world.getBlockTypeIdAt(x, i, z);
+			if(id == 0)
+				air++;
 		}
 		// Then return this number
 		return (air*100)/y;
 	}
-	
-	World previous = null;
 
-	
-	
-	
-	private int prevX = Integer.MAX_VALUE;
-	private int prevY = Integer.MAX_VALUE;
-	private int prevZ = Integer.MAX_VALUE;
+	@Override
 	/**
 	 * Asynchronously updates the minimap
 	 */
-	@Override
 	public void run() {
 		while (parent.getParent().isEnabled()) {
 			long start = System.currentTimeMillis();
+			int scale = MiniMapWidget.scale;
 			try {
 				image = parent.getImage();
 				ActivePlayer player = parent.getParent().getClient()
 						.getActivePlayer();
 
 				World world = player.getWorld();
-				if (world != previous) {
-					previous = world;
-					MiniMapCache.getInstance().clear();
-				}
-				else {
-					//Don't re-render while not moving
-					while (true) {
-						int x = player.getLocation().getBlockX();
-						int y = player.getLocation().getBlockY();
-						int z = player.getLocation().getBlockZ();
-						if (prevX == x && prevY == y && prevZ == z) {
-							try {
-								sleep(100);
-							}
-							catch(InterruptedException ignore) { }
-						}
-						else {
-							break;
-						}
-						//Render at least once every 5 seconds
-						if (System.currentTimeMillis() - start > 5000) {
-							start = System.currentTimeMillis();
-							break;
-						}
-					}
-				}
-	
 				int i = player.getLocation().getBlockX();
-				int j = player.getLocation().getBlockY();
+				//int j = player.getLocation().getBlockY();
 				int k = player.getLocation().getBlockZ();
-				prevX = i;
-				prevY = j;
-				prevZ = k;
-				
 				if(MiniMapWidget.mode == 2)
 					this.densityMap(world, player, i, k);
 				else if(MiniMapWidget.mode == 1)
@@ -211,9 +172,8 @@ class MiniMapRender extends Thread {
 			}
 
 			try {
-				long elapsed = System.currentTimeMillis()-start;
-				long finish = 850 - elapsed;
-				if (finish > 0)
+				long finish = 500-(System.currentTimeMillis()-start);
+				if(finish > 0 && MiniMapWidget.scale == scale)
 					sleep(finish);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -226,22 +186,25 @@ class MiniMapRender extends Thread {
 		return y-(height/2);
 	}
 
-	/* 
+	/*
 	 * HD minimap is the focus - we should work on transparent blocks
 	 */
-	BufferedImage heightMap = new BufferedImage(MiniMap.width, MiniMap.width, BufferedImage.TYPE_INT_RGB);
 	public void heightMap(World world, ActivePlayer player, int i, int k) {
 		long start = System.currentTimeMillis();
 		int scale = MiniMapWidget.scale;
 		/*
-		 * Generate the image and apply shading 
+		 * Generate the image and apply shading
 		 */
 		int tx, tz;
 		int y, id, dy;
 
 		int width = MiniMap.width;
-		
-		Graphics gr = heightMap.getGraphics();
+
+		BufferedImage image = null;
+
+		image = new BufferedImage(width, width, BufferedImage.TYPE_INT_RGB);
+
+		Graphics gr = image.getGraphics();
 
 		gr.setColor(transparent);
 
@@ -251,9 +214,11 @@ class MiniMapRender extends Thread {
 				if(System.currentTimeMillis()-start > 1000 || MiniMapWidget.scale != scale) {
 					gr.dispose();
 					gr = this.image.getGraphics();
-					gr.drawImage(heightMap, 0, 0, 256, 256, null);
+					gr.drawImage(image, 0, 0, 256, 256, null);
 					gr.dispose();
-					heightMap.flush();
+					// Can we help stop the memory leak here?
+					image.flush();
+					image = null;
 					return;
 				}
 				// Use the scale to scale RELATIVELY
@@ -264,23 +229,17 @@ class MiniMapRender extends Thread {
 				// parse from the int[]
 				y = yid[0];
 				id = yid[1];
-				// Get the data if it's in the cache and hasn't been loaded
-				if(y == 0 && id == 0 && cache.contains(tx, tz)) {
-					y = cache.getY(tx, tz);
-					id = cache.getId(tx, tz);
-				} else if(y != 0 && id != 0) {
-					cache.put(tx, tz, y, id);
-				}
+
 				// Calculate the shading to apply
 				dy = this.getShading(y, world)*4;
 				// The color for the xz
-				int argb = map.getRGB(id, x, z);
+				Color color = new Color(map.getRGB(id, x, z));
 				// The rgb values
 				int r, g, b;
 				// rgb set
-				r = ((argb & 0xFF0000) >>> 16);
-				g = ((argb & 0xFF00) >>> 8);
-				b = (argb & 0xFF);
+				r = color.getRed();
+				g = color.getGreen();
+				b = color.getBlue();
 				// do shading (and even out top+bottom a little)
 				if(dy>32)
 					dy = dy-dy/16;
@@ -295,33 +254,38 @@ class MiniMapRender extends Thread {
 				g = rel(g+dy);
 				b = rel(b+dy);
 				// then color in
-				heightMap.setRGB(x+width/2, z+width/2, (r & 0xFF) << 16 | (g & 0xFF) << 8 | (b & 0xFF));
+				image.setRGB(x+width/2, z+width/2, new Color(r, g, b).getRGB());
 			}
 		// Clean up after yourself
 		gr.dispose();
 		// Apply the image to the minimap image
 		gr = this.image.getGraphics();
-		gr.drawImage(heightMap, 0, 0, 256, 256, null);
+		gr.drawImage(image, 0, 0, 256, 256, null);
 		gr.dispose();
-		heightMap.flush();
+		// Can we help stop the memory leak here?
+		image.flush();
+		image = null;
 	}
 
-	/* 
+	/*
 	 * HD minimap is the focus - we should work on transparent blocks
 	 */
-	BufferedImage caveMap = new BufferedImage(MiniMap.width, MiniMap.width, BufferedImage.TYPE_INT_ARGB);
 	public void caveMap(World world, ActivePlayer player, int i, int k) {
 		long start = System.currentTimeMillis();
 		int scale = MiniMapWidget.scale;
 		/*
-		 * Generate the image and apply shading 
+		 * Generate the image and apply shading
 		 */
 		int tx, tz;
 		int y, id, dy;
-		
+
 		int width = MiniMap.width;
 
-		Graphics gr = caveMap.getGraphics();
+		BufferedImage image = null;
+
+		image = new BufferedImage(width, width, BufferedImage.TYPE_INT_RGB);
+
+		Graphics gr = image.getGraphics();
 
 		gr.setColor(transparent);
 
@@ -331,9 +295,11 @@ class MiniMapRender extends Thread {
 				if(System.currentTimeMillis()-start > 1000 || MiniMapWidget.scale != scale) {
 					gr.dispose();
 					gr = this.image.getGraphics();
-					gr.drawImage(caveMap, 0, 0, 256, 256, null);
+					gr.drawImage(image, 0, 0, 256, 256, null);
 					gr.dispose();
-					caveMap.flush();
+					// Can we help stop the memory leak here?
+					image.flush();
+					image = null;
 					return;
 				}
 				// Use the scale to scale RELATIVELY
@@ -351,13 +317,13 @@ class MiniMapRender extends Thread {
 					dy = -255;
 
 				// The color for the xz
-				int argb = map.getRGB(id, x, z);
+				Color color = new Color(map.getRGB(id, x, z));
 				// The rgb values
 				int r, g, b;
 				// rgb set
-				r = ((argb & 0xFF0000) >>> 16);
-				g = ((argb & 0xFF00) >>> 8);
-				b = (argb & 0xFF);
+				r = color.getRed();
+				g = color.getGreen();
+				b = color.getBlue();
 				// do shading (and even out top+bottom a little)
 				if(dy>32)
 					dy = dy-dy/16;
@@ -372,33 +338,38 @@ class MiniMapRender extends Thread {
 				g = rel(g+dy);
 				b = rel(b+dy);
 				// then color in
-				caveMap.setRGB(x+width/2, z+width/2, (r & 0xFF) << 16 | (g & 0xFF) << 8 | (b & 0xFF));
+				image.setRGB(x+width/2, z+width/2, new Color(r, g, b).getRGB());
 			}
 		// Clean up after yourself
 		gr.dispose();
 		// Apply the image to the minimap image
 		gr = this.image.getGraphics();
-		gr.drawImage(caveMap, 0, 0, 256, 256, null);
+		gr.drawImage(image, 0, 0, 256, 256, null);
 		gr.dispose();
-		caveMap.flush();
+		// Can we help stop the memory leak here?
+		image.flush();
+		image = null;
 	}
-	
-	/* 
+
+	/*
 	 * HD minimap is the focus - we should work on transparent blocks
 	 */
-	BufferedImage densityMap = new BufferedImage(MiniMap.width, MiniMap.width, BufferedImage.TYPE_INT_RGB);
 	public void densityMap(World world, ActivePlayer player, int i, int k) {
 		long start = System.currentTimeMillis();
 		int scale = MiniMapWidget.scale;
 		/*
-		 * Generate the image and apply shading 
+		 * Generate the image and apply shading
 		 */
 		int tx, tz;
 		int dy;
-		
+
 		int width = MiniMap.width;
 
-		Graphics gr = densityMap.getGraphics();
+		BufferedImage image = null;
+
+		image = new BufferedImage(width, width, BufferedImage.TYPE_INT_RGB);
+
+		Graphics gr = image.getGraphics();
 
 		gr.setColor(transparent);
 
@@ -408,9 +379,11 @@ class MiniMapRender extends Thread {
 				if(System.currentTimeMillis()-start > 2000 || MiniMapWidget.scale != scale) {
 					gr.dispose();
 					gr = this.image.getGraphics();
-					gr.drawImage(densityMap, 0, 0, 256, 256, null);
+					gr.drawImage(image, 0, 0, 256, 256, null);
 					gr.dispose();
-					densityMap.flush();
+					// Can we help stop the memory leak here?
+					image.flush();
+					image = null;
 					return;
 				}
 				// Use the scale to scale RELATIVELY
@@ -420,17 +393,21 @@ class MiniMapRender extends Thread {
 				dy = this.getDensity(world, tx, tz);
 
 				int adjust = (dy*255)/100;
-				
+				// The color for the xz
+				Color color = new Color(adjust, adjust, adjust);
+
 				// then color in
-				densityMap.setRGB(x+width/2, z+width/2, (adjust & 0xFF) << 16 | (adjust & 0xFF) << 8 | (adjust & 0xFF));
+				image.setRGB(x+width/2, z+width/2, color.getRGB());
 			}
 		// Clean up after yourself
 		gr.dispose();
 		// Apply the image to the minimap image
 		gr = this.image.getGraphics();
-		gr.drawImage(densityMap, 0, 0, 256, 256, null);
+		gr.drawImage(image, 0, 0, 256, 256, null);
 		gr.dispose();
-		densityMap.flush();
+		// Can we help stop the memory leak here?
+		image.flush();
+		image = null;
 	}
 
 	/**
@@ -448,7 +425,7 @@ class MiniMapRender extends Thread {
 
 	/**
 	 * Another nice convenience method, I love navigation!
-	 * 
+	 *
 	 * @return MiniMap
 	 */
 	public MiniMap getParent() {
