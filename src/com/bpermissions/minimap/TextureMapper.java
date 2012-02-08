@@ -5,6 +5,7 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.ZipEntry;
@@ -14,7 +15,13 @@ import javax.imageio.ImageIO;
 
 import org.spoutcraft.spoutcraftapi.Spoutcraft;
 
+import com.bpermissions.minimap.renderer.Renderers;
+
+import de.xzise.ColorUtil;
+
 public class TextureMapper {
+
+	public static final int TEXTURE_TILE_WIDTH = 16;
 
 	private BufferedImage terrain;
 	
@@ -45,8 +52,7 @@ public class TextureMapper {
 			// Clear the BufferedImage cache
 			if(instance != null) {
 				instance.terrain = useTexture ? instance.loadedTerrain : instance.defaultTerrain;
-				for(int i=0; i<instance.images.length; i++)
-					instance.images[i] = null;
+				Arrays.fill(instance.images, null);
 			}
 		}
 	}
@@ -237,69 +243,70 @@ public class TextureMapper {
 		
 		BufferedImage texture = getTexture(id);
 		
-		int width = texture.getWidth();
-		int height = texture.getHeight();
+		final int width = texture.getWidth();
+		final int height = texture.getHeight();
 		
 		int r = 0;
 		int g = 0;
 		int b = 0;
 		
-		for(int x=0; x<width; x++)
+		for(int x=0; x<width; x++) {
 			for(int y=0; y<height; y++) {
 				Color color = new Color(texture.getRGB(x, y));
 				r += color.getRed();
 				g += color.getGreen();
 				b += color.getBlue();	
 			}
-		
-		r = r/(width*height);
-		g = g/(width*height);
-		b = b/(width*height);
-		
+		}
+
+		final int area = width * height;
+		r = r / (area);
+		g = g / (area);
+		b = b / (area);
+
 		Color color = new Color(r, g, b);
-		
+
 		colors.put(id, color);
 		return color;
 	}
-	
+
 	public int getRGB(int id, int x, int z) {
-		x = Math.abs(x) % 16;
-		z = Math.abs(z) % 16;
-		
+		x = Math.abs(x) % TEXTURE_TILE_WIDTH;
+		z = Math.abs(z) % TEXTURE_TILE_WIDTH;
 		return getTexture(id).getRGB(x, z);
 	}
+
 	// Even better than a map, we don't need anything else after all, arrays ftw
 	BufferedImage[] images = new BufferedImage[128];
-	
+
 	public BufferedImage getTexture(int id) {
-		
+
 		if(images[id] != null)
 			return images[id];
-		
+
 		Integer[] pair = getPair(id);
-		int x0 = pair[0]*16;
-		int y0 = pair[1]*16;
-		int x1 = x0+16;
-		int y1 = y0+16;
+		int x0 = pair[0] * TEXTURE_TILE_WIDTH;
+		int y0 = pair[1] * TEXTURE_TILE_WIDTH;
 		BufferedImage img = new BufferedImage(16, 16, BufferedImage.TYPE_INT_RGB);
-		
-		if(id == 0 || id == 20)
+
+		// Ignore air
+		if(id == 0) {
 			return img;
-		
+		}
+
 		Graphics gr = img.getGraphics();
-		gr.setColor(MiniMapRender.transparent);
-		gr.drawImage(terrain, 0, 0, 16, 16, x0, y0, x1, y1, null);
+		gr.setColor(Renderers.TRANSPARENT);
+		gr.drawImage(terrain, 0, 0, 16, 16, x0, y0, x0 + TEXTURE_TILE_WIDTH, y0 + TEXTURE_TILE_WIDTH, null);
 		gr.dispose();
 		if(id == 2 || id == 18 || id ==31) {
-		for(int x=0; x<16; x++)
-			for(int y=0; y<16; y++) {
-			Color color = new Color(img.getRGB(x, y));
-			color = new Color(0, color.getGreen(), 0, color.getAlpha());
-			img.setRGB(x, y, color.getRGB());
-			color = null;
+			for(int x=0; x<16; x++) {
+				for(int y=0; y<16; y++) {
+					final int rgb = img.getRGB(x, y);
+					img.setRGB(x, y, ColorUtil.getRGB(0, ColorUtil.getRedFromRGB(rgb), 0, ColorUtil.getAlphaFromRGB(rgb)));
+				}
 			}
 		}
-		
+
 		images[id] = img;
 		return img;
 	}

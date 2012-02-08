@@ -40,7 +40,7 @@ public class MiniMapCache {
 	 * This static class stores the
 	 * XZYID data.
 	 */
-	static class XZ {
+	public static class XZ {
 
 		private int x;
 		private int z;

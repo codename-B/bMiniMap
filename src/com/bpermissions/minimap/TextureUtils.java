@@ -244,7 +244,7 @@ public class TextureUtils {
 		try {
 			GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureID);
 			GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA,
-					MiniMap.width, MiniMap.width, 0, GL11.GL_RGBA,
+					MiniMap.WIDTH, MiniMap.WIDTH, 0, GL11.GL_RGBA,
 					GL11.GL_UNSIGNED_BYTE, texture);
 			// Now that it's cached
 			texture.clear();
