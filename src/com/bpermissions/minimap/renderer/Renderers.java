@@ -24,7 +24,7 @@ public class Renderers {
 		this.renderers = new HashMap<String, Renderer>(3);
 		putRenderer(new HeightRenderer(width, height, this.cache, this.mapper));
 		putRenderer(new CaveRenderer(width, height, this.mapper));
-		putRenderer(new DensityRenderer(width, height));
+		putRenderer(new DensityRenderer(width, height, this.cache));
 	}
 
 	private void putRenderer(final Renderer renderer) {

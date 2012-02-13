@@ -3,6 +3,7 @@ package com.bpermissions.minimap;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
+import java.awt.image.Raster;
 import java.io.File;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -246,6 +247,7 @@ public class TextureMapper {
 		final int width = texture.getWidth();
 		final int height = texture.getHeight();
 		
+		int a = 0;
 		int r = 0;
 		int g = 0;
 		int b = 0;
@@ -253,6 +255,7 @@ public class TextureMapper {
 		for(int x=0; x<width; x++) {
 			for(int y=0; y<height; y++) {
 				Color color = new Color(texture.getRGB(x, y));
+				a += color.getAlpha();
 				r += color.getRed();
 				g += color.getGreen();
 				b += color.getBlue();	
@@ -260,12 +263,12 @@ public class TextureMapper {
 		}
 
 		final int area = width * height;
+		a = a / (area);
 		r = r / (area);
 		g = g / (area);
 		b = b / (area);
 
-		Color color = new Color(r, g, b);
-
+		Color color = new Color(r, g, b, a);
 		colors.put(id, color);
 		return color;
 	}
@@ -279,6 +282,18 @@ public class TextureMapper {
 	// Even better than a map, we don't need anything else after all, arrays ftw
 	BufferedImage[] images = new BufferedImage[128];
 
+	public static boolean hasTransparentPixels(final BufferedImage image) {
+		Raster alpha = image.getAlphaRaster();
+		int[] pixels = alpha.getPixels(0, 0, alpha.getWidth(), alpha.getHeight(), (int[]) null);
+		System.out.println(Arrays.toString(pixels));
+		for (int i : pixels) {
+			if (i > 0) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public BufferedImage getTexture(int id) {
 
 		if(images[id] != null)
@@ -287,7 +302,7 @@ public class TextureMapper {
 		Integer[] pair = getPair(id);
 		int x0 = pair[0] * TEXTURE_TILE_WIDTH;
 		int y0 = pair[1] * TEXTURE_TILE_WIDTH;
-		BufferedImage img = new BufferedImage(16, 16, BufferedImage.TYPE_INT_RGB);
+		BufferedImage img = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
 
 		// Ignore air
 		if(id == 0) {
@@ -308,7 +323,7 @@ public class TextureMapper {
 		}
 
 		images[id] = img;
-		return img;
+		return images[id];
 	}
 	
 	public BufferedImage loadTerrainDebug() {
@@ -345,7 +360,7 @@ public class TextureMapper {
 			
 			// Scale to 128px
 			if(bmg.getWidth() > 256) {
-				BufferedImage newImg = new BufferedImage(256, 256, BufferedImage.TYPE_INT_RGB);
+				BufferedImage newImg = new BufferedImage(256, 256, BufferedImage.TYPE_INT_ARGB);
 				newImg.getGraphics().drawImage(bmg, 0, 0, 256, 256, null);
 				bmg = newImg;
 			}

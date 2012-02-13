@@ -1,6 +1,7 @@
 package com.bpermissions.minimap;
 
-import org.getspout.commons.util.map.TIntPairLongHashMap;
+import org.getspout.commons.util.map.TIntPairObjectHashMap;
+import org.spoutcraft.spoutcraftapi.World;
 
 /**
  * This is a convenience class for storing XYZ and ID for XZ around the minimap.
@@ -13,22 +14,37 @@ public class MiniMapCache {
 		return instance;
 	}
 
-	TIntPairLongHashMap data = new TIntPairLongHashMap();
-	
+	public static final class IntArray {
+		public final int[] array;
+		public IntArray(final int[] array) {
+			this.array = array;
+		}
+	}
+
+	private final TIntPairObjectHashMap<IntArray> data = new TIntPairObjectHashMap<MiniMapCache.IntArray>();
+	private World world;
+
+	public World getWorld() {
+		return this.world;
+	}
+
+	public void setWorld(final World world) {
+		if ((this.world != null && !this.world.equals(world)) || (this.world == null && world != null)) {
+			this.world = world;
+			this.clear();
+		}
+	}
+
 	public void clear() {
-		data.clear();
+		this.data.clear();
 	}
 
-	public int getY(int x, int z) {
-		return (int) (data.get(x, z) & 0XFFFFFFFF);
-	}
-	
-	public int getId(int x, int z) {
-		return (int) ((data.get(x, z) >> 32) & 0XFFFFFFFF);
+	public int[] get(int x, int z) {
+		return this.data.get(x, z).array;
 	}
 
-	public void put(int x, int z, int y, int id) {
-		data.put(x, z, (id << 32 | y));
+	public void put(int x, int z, int[] array) {
+		this.data.put(x, z, new IntArray(array));
 	}
 
 	public boolean contains(int x, int z) {
