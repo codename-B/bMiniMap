@@ -1,11 +1,12 @@
 package com.bpermissions.minimap;
 
-import java.util.Random;
 
 import org.spoutcraft.spoutcraftapi.ChatColor;
 import org.spoutcraft.spoutcraftapi.Spoutcraft;
 import org.spoutcraft.spoutcraftapi.gui.GenericLabel;
 import org.spoutcraft.spoutcraftapi.util.FixedLocation;
+
+import de.xzise.MinecraftUtil;
 
 public class MiniMapLabel extends GenericLabel {
 	private final MiniMapAddon parent;
@@ -19,8 +20,7 @@ public class MiniMapLabel extends GenericLabel {
 	@Override
 	public void onTick() {
 		FixedLocation loc = parent.getClient().getActivePlayer().getLocation();
-
-		if (canSlimeSpawn(loc)) {
+		if (MinecraftUtil.canSlimeSpawn(loc)) {
 			setText(String.format(COORDS_SLIME, loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
 		} else {
 			setText(String.format(COORDS, loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
@@ -33,12 +33,5 @@ public class MiniMapLabel extends GenericLabel {
 		final int x = (int) Math.round(MiniMapWidget.getStaticWidth() / 2 + MiniMapWidget.getStaticX() - Spoutcraft.getMinecraftFont().getTextWidth(this.getText()) / 2);
 		this.setX(x).setY((int) (MiniMapWidget.getStaticWidth()));
 		super.render();
-	}
-
-	private boolean canSlimeSpawn(FixedLocation loc) {
-		int x = loc.getBlock().getChunk().getX();
-		int z = loc.getBlock().getChunk().getZ();
-		Random rnd = new Random(loc.getWorld().getSeed() + x * x * 4987142 + x * 5947611 + z * z * 4392871L + z * 389711 ^ 987234911L);
-		return rnd.nextInt(10) == 0;
 	}
 }

@@ -8,6 +8,7 @@ import org.spoutcraft.spoutcraftapi.entity.ActivePlayer;
 import com.bpermissions.minimap.MiniMapWidget;
 
 import de.xzise.ColorUtil;
+import de.xzise.MinecraftUtil;
 
 public abstract class ImageRenderer implements Renderer {
 
@@ -75,7 +76,11 @@ public abstract class ImageRenderer implements Renderer {
 				final int tx = (int) (playerX + (x/(3-scale)));
 				final int tz = (int) (playerZ + (z/(3-scale)));
 				// then color in
-				this.getImage().setRGB(x+width/2, z+width/2, this.getColor(player, tx, tz));
+				int rgb = this.getColor(player, tx, tz);
+				if (MinecraftUtil.canSlimeSpawn(MinecraftUtil.getChunkCoordinate(tx), MinecraftUtil.getChunkCoordinate(tz), player.getWorld().getSeed())) {
+					rgb = ColorUtil.setRedFromRGB(rgb, 0xFF);
+				}
+				this.getImage().setRGB(x+width/2, z+width/2, rgb);
 			}
 		}
 		// Clean up after yourself
