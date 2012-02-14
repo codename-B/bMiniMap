@@ -24,7 +24,7 @@ public class MiniMapAddon extends JavaAddon {
 	KeyBinding zoomKeyBind;
 
 	public static BufferedImage defaultTexture;
-	
+
 	public void loadOverlay() {
 		try {
 			// Optionally load the image from outside the jar

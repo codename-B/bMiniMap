@@ -18,8 +18,7 @@ public class MiniMapWidget extends GenericWidget {
 	public static double ty = 0;
 	
 	public static int scale = 0;
-	public static int mode = 0;
-	
+
 	public static boolean rotate = true;
 	
 	public MiniMapWidget(MiniMapAddon parent) {
