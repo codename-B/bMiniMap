@@ -11,8 +11,9 @@ import de.xzise.MinecraftUtil;
 public class MiniMapLabel extends GenericLabel {
 	private final MiniMapAddon parent;
 	private static final String COORDS = ChatColor.YELLOW + "(%d, %d, %d)";
-	private static final String COORDS_SLIME = "(%d, %d, %d, S)";
-	
+	private static final String COORDS_SLIME = ChatColor.YELLOW + "(%d, %d, %d, S)";
+	private boolean showSlimeChunks = false;
+
 	public MiniMapLabel(MiniMapAddon parent) {
 		this.parent = parent;
 	}
@@ -20,11 +21,19 @@ public class MiniMapLabel extends GenericLabel {
 	@Override
 	public void onTick() {
 		FixedLocation loc = parent.getClient().getActivePlayer().getLocation();
-		if (MinecraftUtil.canSlimeSpawn(loc)) {
+		if (this.showSlimeChunks && MinecraftUtil.canSlimeSpawn(loc)) {
 			setText(String.format(COORDS_SLIME, loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
 		} else {
 			setText(String.format(COORDS, loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
 		}
+	}
+
+	public void setShowSlimeChunks(final boolean showSlimeChunks) {
+		this.showSlimeChunks = showSlimeChunks;
+	}
+
+	public boolean getShowSlimeChunks() {
+		return this.showSlimeChunks;
 	}
 
 	@Override
