@@ -30,7 +30,7 @@ public class GUISelector extends GenericPopup {
 //		modeText.setPriority(RenderPriority.Lowest);
 
 		// Mode button
-		mode = new MiniMapModeButton();
+		mode = new MiniMapModeButton(addon.getWidget().miniMap);
 		mode.setX(95).setY(60);
 		mode.setWidth(150).setHeight(20);
 		mode.setPriority(RenderPriority.Lowest);
