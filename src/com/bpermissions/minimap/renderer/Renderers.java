@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.bpermissions.minimap.MiniMapCache;
+import com.bpermissions.minimap.MiniMapRender;
 import com.bpermissions.minimap.TextureMapper;
 
 public class Renderers {
@@ -18,13 +19,13 @@ public class Renderers {
 	private final MiniMapCache cache = MiniMapCache.getInstance();
 	private final TextureMapper mapper;
 
-	public Renderers(final int width, final int height) {
+	public Renderers(final int width, final int height, final MiniMapRender render) {
 		this.mapper = new TextureMapper();
 
 		this.renderers = new HashMap<String, Renderer>(3);
-		putRenderer(new HeightRenderer(width, height, this.cache, this.mapper));
-		putRenderer(new CaveRenderer(width, height, this.mapper));
-		putRenderer(new DensityRenderer(width, height, this.cache));
+		putRenderer(new HeightRenderer(width, height, this.cache, this.mapper, render));
+		putRenderer(new CaveRenderer(width, height, this.mapper, render));
+		putRenderer(new DensityRenderer(width, height, this.cache, render));
 	}
 
 	private void putRenderer(final Renderer renderer) {

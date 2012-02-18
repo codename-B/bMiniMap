@@ -25,11 +25,11 @@ public class MiniMap {
 	 */
 	public MiniMap(MiniMapAddon parent) {
 		this.parent = parent;
-		this.renderers = new Renderers(WIDTH, WIDTH);
-		image = new BufferedImage(WIDTH, WIDTH, BufferedImage.TYPE_INT_ARGB);
-		render = new MiniMapRender(this);
-		render.setRenderer(this.renderers.getRenderer(HeightRenderer.NAME));
-		render.start();
+		this.render = new MiniMapRender(this);
+		this.renderers = new Renderers(WIDTH, WIDTH, render);
+		this.image = new BufferedImage(WIDTH, WIDTH, BufferedImage.TYPE_INT_ARGB);
+		this.render.setRenderer(this.renderers.getRenderer(HeightRenderer.NAME));
+		this.render.start();
 	}
 
 	public Renderers getRenderers() {

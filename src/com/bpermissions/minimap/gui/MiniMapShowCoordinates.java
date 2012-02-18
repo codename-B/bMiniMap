@@ -7,10 +7,12 @@ import org.spoutcraft.spoutcraftapi.gui.Widget;
 public class MiniMapShowCoordinates extends GenericCheckBox {
 
 	private final Widget label;
+	private final MiniMapShowSlimeChunkInCoordinates showSlimeChunkInCoordinates;
 
-	public MiniMapShowCoordinates(final Widget label) {
+	public MiniMapShowCoordinates(final Widget label, final MiniMapShowSlimeChunkInCoordinates showSlimeChunkInCoordinates) {
 		super("Show coordinates");
 		this.label = label;
+		this.showSlimeChunkInCoordinates = showSlimeChunkInCoordinates;
 		setTooltip("Toggles the coordinate display below the minimap");
 		setChecked(label.isVisible());
 	}
@@ -18,5 +20,6 @@ public class MiniMapShowCoordinates extends GenericCheckBox {
 	@Override
 	public void onButtonClick(ButtonClickEvent event) {
 		this.label.setVisible(this.isChecked());
+		this.showSlimeChunkInCoordinates.setEnabled(this.isChecked());
 	}
 }
