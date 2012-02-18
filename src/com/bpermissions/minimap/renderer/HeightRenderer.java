@@ -4,6 +4,7 @@ import org.spoutcraft.spoutcraftapi.World;
 import org.spoutcraft.spoutcraftapi.entity.ActivePlayer;
 
 import com.bpermissions.minimap.MiniMapCache;
+import com.bpermissions.minimap.MiniMapRender;
 import com.bpermissions.minimap.TextureMapper;
 
 import de.xzise.ColorUtil;
@@ -15,8 +16,8 @@ public class HeightRenderer extends ImageRenderer {
 	private final MiniMapCache cache;
 	private final TextureMapper mapper;
 
-	public HeightRenderer(final int width, final int height, final MiniMapCache cache, final TextureMapper mapper) {
-		super(width, height);
+	public HeightRenderer(final int width, final int height, final MiniMapCache cache, final TextureMapper mapper, final MiniMapRender render) {
+		super(width, height, render);
 		this.cache = cache;
 		this.mapper = mapper;
 	}

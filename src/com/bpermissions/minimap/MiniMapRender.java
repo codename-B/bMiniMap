@@ -22,6 +22,8 @@ public class MiniMapRender extends Thread {
 	private Renderer rendererBuffer;
 	private Object lock = new Object();
 
+	private boolean showSlimeChunks = false;
+
 	/**
 	 * MiniMapRender runs the miniMap render async
 	 *
@@ -39,6 +41,14 @@ public class MiniMapRender extends Thread {
 
 	public Renderer getRenderer() {
 		return this.renderer;
+	}
+
+	public void setShowSlimeChunks(final boolean showSlimeChunks) {
+		this.showSlimeChunks = showSlimeChunks;
+	}
+
+	public boolean isShowingSlimeChunks() {
+		return this.showSlimeChunks;
 	}
 
 	@Override

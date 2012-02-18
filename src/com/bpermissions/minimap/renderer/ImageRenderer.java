@@ -5,20 +5,24 @@ import java.awt.image.BufferedImage;
 
 import org.spoutcraft.spoutcraftapi.entity.ActivePlayer;
 
+import com.bpermissions.minimap.MiniMapRender;
 import com.bpermissions.minimap.MiniMapWidget;
 
 import de.xzise.ColorUtil;
+import de.xzise.MinecraftUtil;
 
 public abstract class ImageRenderer implements Renderer {
 
 	private final BufferedImage image;
+	private final MiniMapRender render;
 	public final int width;
 	public final int height;
 
-	public ImageRenderer(final int width, final int height) {
+	public ImageRenderer(final int width, final int height, final MiniMapRender render) {
 		this.image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		this.width = width;
 		this.height = height;
+		this.render = render;
 	}
 
 	protected final BufferedImage getImage() {
@@ -75,7 +79,11 @@ public abstract class ImageRenderer implements Renderer {
 				final int tx = (int) (playerX + (x/(3-scale)));
 				final int tz = (int) (playerZ + (z/(3-scale)));
 				// then color in
-				this.getImage().setRGB(x+width/2, z+width/2, this.getColor(player, tx, tz));
+				int rgb = this.getColor(player, tx, tz);
+				if (this.render.isShowingSlimeChunks() && MinecraftUtil.canSlimeSpawn(MinecraftUtil.getChunkCoordinate(tx), MinecraftUtil.getChunkCoordinate(tz), player.getWorld().getSeed())) {
+					rgb = ColorUtil.setRedFromRGB(rgb, 0xFF);
+				}
+				this.getImage().setRGB(x+width/2, z+width/2, rgb);
 			}
 		}
 		// Clean up after yourself

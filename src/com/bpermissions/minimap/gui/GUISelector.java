@@ -45,10 +45,19 @@ public class GUISelector extends GenericPopup {
 		rotate.setX(95).setY(120);
 		rotate.setWidth(150).setHeight(20);
 
+		MiniMapShowSlimeChunkInCoordinates showSlimeChunkInCoordinates = new MiniMapShowSlimeChunkInCoordinates(addon.getLabel());
+
 		// Show coordinates
-		showCoordinates = new MiniMapShowCoordinates(addon.getLabel());
+		showCoordinates = new MiniMapShowCoordinates(addon.getLabel(), showSlimeChunkInCoordinates);
 		showCoordinates.setX(95).setY(150);
 		showCoordinates.setWidth(150).setHeight(20);
+
+		showSlimeChunkInCoordinates.setX(95).setY(180);
+		showSlimeChunkInCoordinates.setWidth(150).setHeight(20);
+
+		MiniMapShowSlimeChunkInMap showSlimeChunkInMap = new MiniMapShowSlimeChunkInMap(addon.getWidget().miniMap.getRender());
+		showSlimeChunkInMap.setX(95).setY(210);
+		showSlimeChunkInMap.setWidth(150).setHeight(20);
 
 		this.attachWidget(addon, scale);
 //		this.attachWidget(addon, modeText);
@@ -56,6 +65,8 @@ public class GUISelector extends GenericPopup {
 		this.attachWidget(addon, texture);
 		this.attachWidget(addon, rotate);
 		this.attachWidget(addon, showCoordinates);
+		this.attachWidget(addon, showSlimeChunkInCoordinates);
+		this.attachWidget(addon, showSlimeChunkInMap);
 	}
 	
 

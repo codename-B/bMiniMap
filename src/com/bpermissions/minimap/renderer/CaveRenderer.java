@@ -3,14 +3,15 @@ package com.bpermissions.minimap.renderer;
 import org.spoutcraft.spoutcraftapi.World;
 import org.spoutcraft.spoutcraftapi.entity.ActivePlayer;
 
+import com.bpermissions.minimap.MiniMapRender;
 import com.bpermissions.minimap.TextureMapper;
 
 public class CaveRenderer extends ImageRenderer {
 
 	private final TextureMapper mapper;
 
-	public CaveRenderer(final int width, final int height, final TextureMapper mapper) {
-		super(width, height);
+	public CaveRenderer(final int width, final int height, final TextureMapper mapper, final MiniMapRender render) {
+		super(width, height, render);
 		this.mapper = mapper;
 	}
 

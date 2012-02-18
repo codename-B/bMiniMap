@@ -25,13 +25,13 @@ public class MiniMapWidget extends GenericWidget {
 		this.parent = parent;
 		miniMap = new MiniMap(parent);
 	}
-	
-	public double getWidthX() {
-		return Spoutcraft.getRenderDelegate().getScreenWidth();
+
+	public static double getStaticWidth() {
+		return Spoutcraft.getRenderDelegate().getScreenWidth() / 5;
 	}
-	
-	public double getHeightY() {
-		return Spoutcraft.getRenderDelegate().getScreenHeight();
+
+	public static double getStaticX() {
+		return Spoutcraft.getRenderDelegate().getScreenWidth() - getStaticWidth();
 	}
 
 	@Override
@@ -50,14 +50,14 @@ public class MiniMapWidget extends GenericWidget {
 	 * We then draw a quad :)
 	 */
 	public void render() {
-		tx = getWidthX()-getWidthX()/5;
+		tx = getStaticX();
 		// Global translation
 		GL11.glTranslated(tx, ty, 0);
 		
 		// Code to draw the face of the player
 		//drawPlayer();
 		// Code moved to textureUtils
-		buff = TextureUtils.render(miniMap, buff, (int) (getWidthX()/5));
+		buff = TextureUtils.render(miniMap, buff, (int) (getStaticWidth()));
 		
 		// Global untranslation
 		GL11.glTranslated(-tx, -ty, 0);

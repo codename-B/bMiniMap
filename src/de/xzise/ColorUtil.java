@@ -16,6 +16,10 @@ public final class ColorUtil {
 		return (rgb >> 24) & 0xFF;
 	}
 
+	public static int setRedFromRGB(final int rgb, final int red) {
+		return rgb & ~(0xFF) | (red & 0xFF) << 16;
+	}
+
 	public static int getRedFromRGB(final int rgb) {
 		return (rgb >> 16) & 0xFF;
 	}

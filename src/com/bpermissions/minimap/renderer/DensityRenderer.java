@@ -4,6 +4,7 @@ import org.spoutcraft.spoutcraftapi.World;
 import org.spoutcraft.spoutcraftapi.entity.ActivePlayer;
 
 import com.bpermissions.minimap.MiniMapCache;
+import com.bpermissions.minimap.MiniMapRender;
 
 import de.xzise.ColorUtil;
 
@@ -11,8 +12,8 @@ public class DensityRenderer extends ImageRenderer {
 
 	private final MiniMapCache cache;
 
-	public DensityRenderer(final int width, final int height, final MiniMapCache cache) {
-		super(width, height);
+	public DensityRenderer(final int width, final int height, final MiniMapCache cache, final MiniMapRender render) {
+		super(width, height, render);
 		this.cache = cache;
 	}
 
